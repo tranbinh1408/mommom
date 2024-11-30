@@ -1,46 +1,62 @@
-import React, { useEffect, useState } from 'react';  // Thêm useState
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import $ from 'jquery';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'owl.carousel/dist/owl.carousel.min.js';
+import 'jquery-nice-select';
+function Home() {
+    useEffect(() => {
+        const loadScripts = async () => {
+        try {
+            // Đảm bảo jQuery được load trước
+            window.jQuery = window.$ = $;
+            
+            // Đợi một chút để đảm bảo DOM đã được render
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-const Home = () => {
-  const [activeFilter, setActiveFilter] = useState('*');
-  
-  useEffect(() => {
-    const initializeIsotope = () => {
-      const $ = window.jQuery;
-      if ($ && typeof $.fn.isotope === 'function') {
-        const grid = $('.grid').isotope({
-          itemSelector: '.all',
-          layoutMode: 'fitRows'
-        });
+            // Khởi tạo Owl Carousel
+            if (typeof $('.owl-carousel').owlCarousel === 'function') {
+            $('.owl-carousel').owlCarousel({
+                loop: true,
+                margin: 10,
+                nav: true,
+                responsive: {
+                0: { items: 1 },
+                600: { items: 3 },
+                1000: { items: 5 }
+                }
+            });
+            }
 
-        $('.filters_menu li').on('click', function() {
-          $('.filters_menu li').removeClass('active');
-          $(this).addClass('active');
-          
-          const dataFilter = $(this).attr('data-filter');
-          setActiveFilter(dataFilter);
-          
-          grid.isotope({
-            filter: dataFilter
-          });
-        });
-      }
-    };
+            // Khởi tạo Nice Select
+            if (typeof $('select').niceSelect === 'function') {
+            $('select').niceSelect();
+            }
 
-    // Đợi DOM và scripts load xong
-    const timer = setTimeout(() => {
-      initializeIsotope();
-    }, 1000);
+            // Khởi tạo Google Map
+            const initMap = () => {
+            const map = new window.google.maps.Map(document.getElementById('googleMap'), {
+                center: { lat: -34.397, lng: 150.644 },
+                zoom: 8,
+            });
+            };
 
-    return () => {
-      clearTimeout(timer);
-      // Cleanup isotope nếu cần
-      const $ = window.jQuery;
-      if ($ && $('.grid').data('isotope')) {
-        $('.grid').isotope('destroy');
-      }
-    };
-  }, []);
+            if (!window.google) {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
+            script.async = true;
+            script.defer = true;
+            script.onload = initMap;
+            document.head.appendChild(script);
+            } else {
+            initMap();
+            }
+        } catch (error) {
+            console.error('Error loading scripts:', error);
+        }
+        };
+
+        loadScripts();
+    }, []);
 
   return (
     <div>

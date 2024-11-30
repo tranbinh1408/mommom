@@ -61,13 +61,13 @@ const BookTable = () => {
     // TODO: Gửi data đến server
   };
   return (
-    <div>
+    <div className="sub_page">
       {/* Hero Area */}
-      <div className="hero_area">
+      {/* <div className="hero_area">
         <div className="bg-box">
           <img src="images/hero-bg.jpg" alt="" />
         </div>
-      </div>
+      </div> */}
 
       {/* Book Section */}
       <section className="book_section layout_padding">

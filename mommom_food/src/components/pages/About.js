@@ -22,13 +22,13 @@ const About = () => {
     };
   }, []);
   return (
-    <div>
+    <div className="sub_page">
       {/* Hero Area */}
-      <div className="hero_area">
+      {/* <div className="hero_area">
         <div className="bg-box">
           <img src="images/hero-bg.jpg" alt="" />
         </div>
-      </div>
+      </div> */}
 
       {/* About Section */}
       <section className="about_section layout_padding">
