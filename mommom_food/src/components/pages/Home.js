@@ -1,63 +1,121 @@
-import React, { useEffect } from 'react';
-import $ from 'jquery';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import 'owl.carousel/dist/owl.carousel.min.js';
-import 'jquery-nice-select';
-function Home() {
-    useEffect(() => {
-        const loadScripts = async () => {
-        try {
-            // Đảm bảo jQuery được load trước
-            window.jQuery = window.$ = $;
-            
-            // Đợi một chút để đảm bảo DOM đã được render
-            await new Promise(resolve => setTimeout(resolve, 100));
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-            // Khởi tạo Owl Carousel
-            if (typeof $('.owl-carousel').owlCarousel === 'function') {
-            $('.owl-carousel').owlCarousel({
-                loop: true,
-                margin: 10,
-                nav: true,
-                responsive: {
-                0: { items: 1 },
-                600: { items: 3 },
-                1000: { items: 5 }
+const Home = () => {
+  const [activeFilter, setActiveFilter] = useState('*');
+  
+  useEffect(() => {
+    const initializeScripts = () => {
+      const $ = window.jQuery;
+      
+      // Khởi tạo Isotope
+      if ($ && typeof $.fn.isotope === 'function') {
+        const grid = $('.grid').isotope({
+          itemSelector: '.all',
+          layoutMode: 'fitRows'
+        });
+        
+        $('.filters_menu li').on('click', function() {
+          $('.filters_menu li').removeClass('active');
+          $(this).addClass('active');
+          
+          const dataFilter = $(this).attr('data-filter');
+          setActiveFilter(dataFilter);
+          
+          grid.isotope({
+            filter: dataFilter
+          });
+        });
+      }
+
+      // Khởi tạo Owl Carousel
+      if ($ && typeof $.fn.owlCarousel === 'function') {
+        $('.client_owl-carousel').owlCarousel({
+          loop: true,
+          margin: 20,
+          dots: false,
+          nav: true,
+          navText: [],
+          autoplay: true,
+          autoplayHoverPause: true,
+          responsive: {
+            0: {
+              items: 1
+            },
+            768: {
+              items: 2
+            }
+          }
+        });
+      }
+
+      // Khởi tạo Nice Select cho form
+      if ($ && typeof $.fn.niceSelect === 'function') {
+        $('select').niceSelect();
+      }
+
+      // Khởi tạo Google Maps
+      const initMap = () => {
+        const map = new window.google.maps.Map(document.getElementById('googleMap'), {
+          center: { lat: 10.8231, lng: 106.6297 }, // Tọa độ TP.HCM
+          zoom: 14,
+          styles: [
+            {
+              featureType: "all",
+              elementType: "labels.text.fill",
+              stylers: [
+                {
+                  saturation: 36
+                },
+                {
+                  color: "#000000"
+                },
+                {
+                  lightness: 40
                 }
-            });
+              ]
             }
+          ]
+        });
 
-            // Khởi tạo Nice Select
-            if (typeof $('select').niceSelect === 'function') {
-            $('select').niceSelect();
-            }
+        // Thêm marker
+        new window.google.maps.Marker({
+          position: { lat: 10.8231, lng: 106.6297 },
+          map: map,
+          title: 'Our Restaurant'
+        });
+      };
 
-            // Khởi tạo Google Map
-            const initMap = () => {
-            const map = new window.google.maps.Map(document.getElementById('googleMap'), {
-                center: { lat: -34.397, lng: 150.644 },
-                zoom: 8,
-            });
-            };
+      // Load Google Maps Script
+      if (!window.google) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY`; // Thay YOUR_GOOGLE_MAPS_API_KEY bằng API key của bạn
+        script.async = true;
+        script.defer = true;
+        script.onload = initMap;
+        document.head.appendChild(script);
+      } else {
+        initMap();
+      }
+    };
 
-            if (!window.google) {
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY`;
-            script.async = true;
-            script.defer = true;
-            script.onload = initMap;
-            document.head.appendChild(script);
-            } else {
-            initMap();
-            }
-        } catch (error) {
-            console.error('Error loading scripts:', error);
-        }
-        };
+    // Đợi DOM và scripts load xong
+    const timer = setTimeout(() => {
+      initializeScripts();
+    }, 1000);
 
-        loadScripts();
-    }, []);
-
+    // Cleanup function
+    return () => {
+      clearTimeout(timer);
+      const $ = window.jQuery;
+      if ($ && $('.grid').data('isotope')) {
+        $('.grid').isotope('destroy');
+      }
+      if ($ && $('.client_owl-carousel').data('owlCarousel')) {
+        $('.client_owl-carousel').owlCarousel('destroy');
+      }
+    };
+  }, []);
   return (
     <div>
       <div className="hero_area">
