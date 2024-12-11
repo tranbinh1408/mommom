@@ -122,230 +122,230 @@ const Menu = () => {
   <div className="sub_page">
         {/* food section */}
         <section className="food_section layout_padding-bottom">
-          <div className="container">
-            <div className="heading_container heading_center">
-              <h2>
-                Our Menu
-              </h2>
-            </div>
+        <div className="container">
+          <div className="heading_container heading_center">
+            <h2>
+              Thực đơn
+            </h2>
+          </div>
 
-            <ul className="filters_menu">
-              <li className="active" data-filter="*">All</li>
-              <li data-filter=".burger">Burger</li>
-              <li data-filter=".pizza">Pizza</li>
-              <li data-filter=".pasta">Pasta</li>
-              <li data-filter=".fries">Fries</li>
-            </ul>
+          <ul className="filters_menu">
+            <li className="active" data-filter="*">Tất cả</li>
+            <li data-filter=".burger">Phở/Bún</li>
+            <li data-filter=".pizza">Cơm</li>
+            <li data-filter=".pasta">Đồ uống</li>
+            {/* <li data-filter=".fries">Fries</li> */}
+          </ul>
 
-            <div className="filters-content">
-              <div className="row grid">
-                <div className="col-sm-6 col-lg-4 all pizza">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f1.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Delicious Pizza
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $20
-                          </h6>
-                        </div>
+          <div className="filters-content">
+            <div className="row grid">
+              <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/pho.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Phở bò
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $20
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all burger">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f2.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Delicious Burger
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $15
-                          </h6>
-                        </div>
+              </div>
+              <div className="col-sm-6 col-lg-4 all pizza">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/comtam.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Cơm tấm
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $15
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all pizza">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f3.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Delicious Pizza
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $17
-                          </h6>
-                        </div>
+              </div>
+              <div className="col-sm-6 col-lg-4 all pizza">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/comgaxoimo.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Cơm gà xối mỡ
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $17
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all pasta">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f4.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Delicious Pasta
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $18
-                          </h6>
-                        </div>
+              </div>
+              {/* <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/buncha.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Bún chả
+                      </h5>
+                      <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p>
+                      <div className="options">
+                        <h6>
+                          $18
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all fries">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f5.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          French Fries
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $10
-                          </h6>
-                        </div>
+              </div> */}
+              <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/bunbohue.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Bún bò huế
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $10
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all pizza">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f6.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Delicious Pizza
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $15
-                          </h6>
-                        </div>
+              </div>
+              <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/bundau.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Bún đậu
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $15
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all burger">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f7.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Tasty Burger
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $12
-                          </h6>
-                        </div>
+              </div>
+              <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/banhcuon.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Bánh cuốn nóng
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $12
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all burger">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f8.png" alt="" / >
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Tasty Burger
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $14
-                          </h6>
-                        </div>
+              </div>
+              <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/miquang.png" alt="" / >
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Mì quảng
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $14
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-sm-6 col-lg-4 all pasta">
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src="images/f9.png" alt="" />
-                      </div>
-                      <div className="detail-box">
-                        <h5>
-                          Delicious Pasta
-                        </h5>
-                        <p>
-                          Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                        </p>
-                        <div className="options">
-                          <h6>
-                            $10
-                          </h6>
-                        </div>
+              </div>
+              <div className="col-sm-6 col-lg-4 all burger">
+                <div className="box">
+                  <div>
+                    <div className="img-box">
+                      <img src="images/buncha.png" alt="" />
+                    </div>
+                    <div className="detail-box">
+                      <h5>
+                        Bún chả
+                      </h5>
+                      {/* <p>
+                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
+                      </p> */}
+                      <div className="options">
+                        <h6>
+                          $10
+                        </h6>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="btn-box">
-              <a href="">
-                View More
-              </a>
-            </div>
           </div>
-        </section>
+          <div className="btn-box">
+            <a href="">
+              Xem thêm
+            </a>
+          </div>
+        </div>
+      </section>
   </div>
   );
 }

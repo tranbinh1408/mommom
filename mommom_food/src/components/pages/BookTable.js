@@ -74,7 +74,7 @@ const BookTable = () => {
         <div className="container">
           <div className="heading_container">
             <h2>
-              Book A Table
+              Đặt bàn
             </h2>
           </div>
           <div className="row">
@@ -85,27 +85,27 @@ const BookTable = () => {
                     <input 
                       type="text" 
                       className="form-control" 
-                      placeholder="Your Name" 
+                      placeholder="Tên" 
                     />
                   </div>
                   <div>
                     <input 
                       type="text" 
                       className="form-control" 
-                      placeholder="Phone Number" 
+                      placeholder="Số điện thoại" 
                     />
                   </div>
                   <div>
                     <input 
                       type="email" 
                       className="form-control" 
-                      placeholder="Your Email" 
+                      placeholder="Email" 
                     />
                   </div>
                   <div>
                     <select className="form-control nice-select wide">
                       <option value="" disabled selected>
-                        How many persons?
+                        Bạn có bao nhiêu người?
                       </option>
                       <option value="2">2</option>
                       <option value="3">3</option>
@@ -121,7 +121,7 @@ const BookTable = () => {
                   </div>
                   <div className="btn_box">
                     <button>
-                      Book Now
+                      Đặt ngay
                     </button>
                   </div>
                 </form>

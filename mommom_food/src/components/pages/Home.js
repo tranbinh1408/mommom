@@ -118,7 +118,7 @@ const Home = () => {
   }, []);
   return (
     <div>
-      <div className="hero_area">
+      {/* <div className="hero_area">
         <div className="bg-box">
           <img src="images/hero-bg.jpg" alt="" />
         </div>
@@ -199,9 +199,40 @@ const Home = () => {
           </div>
 
         </section>
-        {/* end slider section */}
-      </div>
+       
+      </div> */}
+ {/* end slider section */}
+       {/* about section */}
 
+       <section className="about_section layout_padding">
+        <div className="container  ">
+
+          <div className="row">
+            <div className="col-md-6 ">
+              <div className="img-box">
+                <img src="images/pho.png" alt="" />
+              </div>
+            </div>
+            <div className="col-md-6">
+              <div className="detail-box">
+                <div className="heading_container">
+                  <h2>
+                    Mommom food
+                  </h2>
+                </div>
+                <p>
+                Phở Việt Nam - tinh hoa ẩm thực truyền thống, hòa quyện hương vị đậm đà từ nước dùng thơm ngọt, bánh phở mềm mịn, và thịt bò hay gà tươi ngon, mang đến trải nghiệm khó quên trong từng bát phở.
+                </p>
+                <a href="">
+                  Thêm
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* end about section */}
       {/* offer section */}
 
       <section className="offer_section layout_padding-bottom">
@@ -251,33 +282,33 @@ const Home = () => {
         <div className="container">
           <div className="heading_container heading_center">
             <h2>
-              Our Menu
+              Thực đơn
             </h2>
           </div>
 
           <ul className="filters_menu">
-            <li className="active" data-filter="*">All</li>
-            <li data-filter=".burger">Burger</li>
-            <li data-filter=".pizza">Pizza</li>
-            <li data-filter=".pasta">Pasta</li>
-            <li data-filter=".fries">Fries</li>
+            <li className="active" data-filter="*">Tất cả</li>
+            <li data-filter=".burger">Phở/Bún</li>
+            <li data-filter=".pizza">Cơm</li>
+            <li data-filter=".pasta">Đồ uống</li>
+            {/* <li data-filter=".fries">Fries</li> */}
           </ul>
 
           <div className="filters-content">
             <div className="row grid">
-              <div className="col-sm-6 col-lg-4 all pizza">
+              <div className="col-sm-6 col-lg-4 all burger">
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f1.png" alt="" />
+                      <img src="images/pho.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Delicious Pizza
+                        Phở bò
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $20
@@ -287,19 +318,19 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-sm-6 col-lg-4 all burger">
+              <div className="col-sm-6 col-lg-4 all pizza">
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f2.png" alt="" />
+                      <img src="images/comtam.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Delicious Burger
+                        Cơm tấm
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $15
@@ -313,15 +344,15 @@ const Home = () => {
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f3.png" alt="" />
+                      <img src="images/comgaxoimo.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Delicious Pizza
+                        Cơm gà xối mỡ
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $17
@@ -331,15 +362,15 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-sm-6 col-lg-4 all pasta">
+              {/* <div className="col-sm-6 col-lg-4 all burger">
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f4.png" alt="" />
+                      <img src="images/buncha.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Delicious Pasta
+                        Bún chả
                       </h5>
                       <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
@@ -352,20 +383,20 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all fries">
+              </div> */}
+              <div className="col-sm-6 col-lg-4 all burger">
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f5.png" alt="" />
+                      <img src="images/bunbohue.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        French Fries
+                        Bún bò huế
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $10
@@ -375,19 +406,19 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-sm-6 col-lg-4 all pizza">
+              <div className="col-sm-6 col-lg-4 all burger">
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f6.png" alt="" />
+                      <img src="images/bundau.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Delicious Pizza
+                        Bún đậu
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $15
@@ -401,15 +432,15 @@ const Home = () => {
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f7.png" alt="" />
+                      <img src="images/banhcuon.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Tasty Burger
+                        Bánh cuốn nóng
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $12
@@ -423,15 +454,15 @@ const Home = () => {
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f8.png" alt="" / >
+                      <img src="images/miquang.png" alt="" / >
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Tasty Burger
+                        Mì quảng
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $14
@@ -441,19 +472,19 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-sm-6 col-lg-4 all pasta">
+              <div className="col-sm-6 col-lg-4 all burger">
                 <div className="box">
                   <div>
                     <div className="img-box">
-                      <img src="images/f9.png" alt="" />
+                      <img src="images/buncha.png" alt="" />
                     </div>
                     <div className="detail-box">
                       <h5>
-                        Delicious Pasta
+                        Bún chả
                       </h5>
-                      <p>
+                      {/* <p>
                         Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
+                      </p> */}
                       <div className="options">
                         <h6>
                           $10
@@ -467,7 +498,7 @@ const Home = () => {
           </div>
           <div className="btn-box">
             <a href="">
-              View More
+              Xem thêm
             </a>
           </div>
         </div>
@@ -475,47 +506,13 @@ const Home = () => {
 
       {/* end food section */}
 
-      {/* about section */}
-
-      <section className="about_section layout_padding">
-        <div className="container  ">
-
-          <div className="row">
-            <div className="col-md-6 ">
-              <div className="img-box">
-                <img src="images/about-img.png" alt="" />
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="detail-box">
-                <div className="heading_container">
-                  <h2>
-                    We Are Feane
-                  </h2>
-                </div>
-                <p>
-                  There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
-                  in some form, by injected humour, or randomised words which don't look even slightly believable. If you
-                  are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in
-                  the middle of text. All
-                </p>
-                <a href="">
-                  Read More
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* end about section */}
 
       {/* book section */}
       <section className="book_section layout_padding">
         <div className="container">
           <div className="heading_container">
             <h2>
-              Book A Table
+              Đặt bàn
             </h2>
           </div>
           <div className="row">
@@ -523,46 +520,53 @@ const Home = () => {
               <div className="form_container">
                 <form action="">
                   <div>
-                    <input type="text" className="form-control" placeholder="Your Name" />
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Tên" 
+                    />
                   </div>
                   <div>
-                    <input type="text" className="form-control" placeholder="Phone Number" />
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Số điện thoại" 
+                    />
                   </div>
                   <div>
-                    <input type="email" className="form-control" placeholder="Your Email" />
+                    <input 
+                      type="email" 
+                      className="form-control" 
+                      placeholder="Email" 
+                    />
                   </div>
                   <div>
                     <select className="form-control nice-select wide">
                       <option value="" disabled selected>
-                        How many persons?
+                        Bạn có bao nhiêu người?
                       </option>
-                      <option value="">
-                        2
-                      </option>
-                      <option value="">
-                        3
-                      </option>
-                      <option value="">
-                        4
-                      </option>
-                      <option value="">
-                        5
-                      </option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
                     </select>
                   </div>
                   <div>
-                    <input type="date" className="form-control" />
+                    <input 
+                      type="date" 
+                      className="form-control" 
+                    />
                   </div>
                   <div className="btn_box">
                     <button>
-                      Book Now
+                      Đặt ngay
                     </button>
                   </div>
                 </form>
               </div>
             </div>
             <div className="col-md-6">
-              <div className="map_container ">
+              <div className="map_container">
                 <div id="googleMap"></div>
               </div>
             </div>

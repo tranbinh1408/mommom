@@ -10,7 +10,7 @@ const Header = () => {
       <div className="container">
         <nav className="navbar navbar-expand-lg custom_nav-container">
           <Link className="navbar-brand" to="/">
-            <span>Feane</span>
+            <span>Mommom food</span>
           </Link>
 
           <button 
@@ -29,22 +29,22 @@ const Header = () => {
             <ul className="navbar-nav mx-auto">
               <li className={`nav-item ${path === '/' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/">
-                  Home {path === '/' && <span className="sr-only">(current)</span>}
+                  Trang chủ {path === '/' && <span className="sr-only">(current)</span>}
                 </Link>
               </li>
               <li className={`nav-item ${path === '/menu' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/menu">
-                  Menu {path === '/menu' && <span className="sr-only">(current)</span>}
+                  Thực đơn {path === '/menu' && <span className="sr-only">(current)</span>}
                 </Link>
               </li>
               <li className={`nav-item ${path === '/about' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/about">
-                  About {path === '/about' && <span className="sr-only">(current)</span>}
+                  Thêm {path === '/about' && <span className="sr-only">(current)</span>}
                 </Link>
               </li>
               <li className={`nav-item ${path === '/book' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/book">
-                  Book Table {path === '/book' && <span className="sr-only">(current)</span>}
+                  Đặt bàn {path === '/book' && <span className="sr-only">(current)</span>}
                 </Link>
               </li>
             </ul>
