@@ -49,7 +49,8 @@ const Header = () => {
               </li>
             </ul>
             <div className="user_option">
-              <Link to="#" className="user_link">
+              {/* Thay đổi thành Link để chuyển đến trang đăng nhập admin */}
+              <Link to="/admin/login" className="user_link">
                 <i className="fa fa-user" aria-hidden="true"></i>
               </Link>
               <Link className="cart_link" to="#">
