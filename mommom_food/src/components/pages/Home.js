@@ -490,6 +490,7 @@ const Home = () => {
                           $10
                         </h6>
                       </div>
+                      
                     </div>
                   </div>
                 </div>
@@ -577,7 +578,7 @@ const Home = () => {
 
       {/* client section */}
 
-      <section className="client_section layout_padding-bottom">
+      {/* <section className="client_section layout_padding-bottom">
         <div className="container">
           <div className="heading_container heading_center psudo_white_primary mb_45">
             <h2>
@@ -625,7 +626,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       {/* end client section */}
 
     </div>
