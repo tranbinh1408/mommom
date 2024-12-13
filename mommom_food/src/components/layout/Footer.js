@@ -74,14 +74,13 @@ const Footer = () => {
               </p>
             </div>
           </div>
-          <div className="footer-info" >
-          <p>
-            &copy; <span id="displayYear"></span> 
-            Mọi quyền được bảo lưu bởi
-            Mommom Food<br/><br/>
-             <a href="https://yourwebsite.com" target="_blank">Mommom Food Team</a>
-          </p>
-
+          <div className="footer-info">
+            <p>
+              &copy; <span>{currentYear}</span> {/* Thay đổi ở đây */}
+              Mọi quyền được bảo lưu bởi
+              Mommom Food<br/><br/>
+              <a href="https://yourwebsite.com" target="_blank">Mommom Food Team</a>
+            </p>
           </div>
         </div>
     </footer>
