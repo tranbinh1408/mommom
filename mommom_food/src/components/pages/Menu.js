@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 
 const ProductModal = ({ show, handleClose, product }) => {
@@ -50,27 +50,42 @@ const ProductModal = ({ show, handleClose, product }) => {
     </Modal>
   );
 };
+
 const Menu = () => {
   const [activeFilter, setActiveFilter] = useState('*');
-
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleShowModal = (product) => {
-  setSelectedProduct(product);
-  setShowModal(true);
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/products');
+        if (response.data.success) {
+          setProducts(response.data.data);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Không thể tải danh sách sản phẩm');
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const initializeIsotope = () => {
       const $ = window.jQuery;
-      if ($ && typeof $.fn.isotope === 'function') {
+      if ($ && typeof $.fn.isotope === 'function' && products.length > 0) {
         const grid = $('.grid').isotope({
           itemSelector: '.all',
           layoutMode: 'fitRows'
         });
 
-        // Khởi tạo filter
         $('.filters_menu li').on('click', function() {
           $('.filters_menu li').removeClass('active');
           $(this).addClass('active');
@@ -85,105 +100,33 @@ const Menu = () => {
       }
     };
 
-    // Đợi DOM và scripts load xong
     const timer = setTimeout(() => {
       initializeIsotope();
     }, 1000);
 
     return () => {
       clearTimeout(timer);
-      // Cleanup isotope nếu cần
       const $ = window.jQuery;
       if ($ && $('.grid').data('isotope')) {
         $('.grid').isotope('destroy');
       }
     };
-  }, []);
+  }, [products]);
 
-  const menuItems = [
-    {
-      id: 1,
-      category: 'pizza',
-      image: 'images/f1.png',
-      name: 'Delicious Pizza',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 20
-    },
-    {
-      id: 2,
-      category: 'burger',
-      image: 'images/f2.png',
-      name: 'Delicious Burger',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 15
-    },
-    {
-      id: 3,
-      category: 'pizza',
-      image: 'images/f3.png',
-      name: 'Supreme Pizza',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 17
-    },
-    {
-      id: 4,
-      category: 'pasta',
-      image: 'images/f4.png',
-      name: 'Delicious Pasta',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 18
-    },
-    {
-      id: 5,
-      category: 'fries',
-      image: 'images/f5.png',
-      name: 'French Fries',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 10
-    },
-    {
-      id: 6,
-      category: 'pizza',
-      image: 'images/f6.png',
-      name: 'Delicious Pizza',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 15
-    },
-    {
-      id: 7,
-      category: 'burger',
-      image: 'images/f7.png',
-      name: 'Tasty Burger',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 12
-    },
-    {
-      id: 8,
-      category: 'burger',
-      image: 'images/f8.png',
-      name: 'Tasty Burger',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 14
-    },
-    {
-      id: 9,
-      category: 'pasta',
-      image: 'images/f9.png',
-      name: 'Special Pasta',
-      description: 'Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque',
-      price: 16
-    }
-  ];
+  const handleShowModal = (product) => {
+    setSelectedProduct(product);
+    setShowModal(true);
+  };
+
+  if (loading) return <div>Đang tải...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-  <div className="sub_page">
-        {/* food section */}
-        <section className="food_section layout_padding-bottom">
+    <div className="sub_page">
+      <section className="food_section layout_padding-bottom">
         <div className="container">
           <div className="heading_container heading_center">
-            <h2>
-              Thực đơn
-            </h2>
+            <h2>Thực đơn</h2>
           </div>
 
           <ul className="filters_menu">
@@ -191,297 +134,50 @@ const Menu = () => {
             <li data-filter=".burger">Phở/Bún</li>
             <li data-filter=".pizza">Cơm</li>
             <li data-filter=".pasta">Đồ uống</li>
-            {/* <li data-filter=".fries">Fries</li> */}
           </ul>
 
           <div className="filters-content">
             <div className="row grid">
-              <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/pho.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Phở bò
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                    <div className="options">
-                      <h6>$20</h6>
-                      <button 
-                        className="cart-btn"
-                        onClick={() => handleShowModal({
-                          id: 1,
-                          name: 'Phở bò',
-                          price: 20,
-                          image: 'images/pho.png'
-                        })}
-                      >
-                        <i className="fa fa-shopping-cart"></i>
-                      </button>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all pizza">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/comtam.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Cơm tấm
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                    <div className="options">
-                      <h6>$20</h6>
-                      <button 
-                        className="cart-btn"
-                        onClick={() => handleShowModal({
-                          id: 1,
-                          name: 'Cơm tấm',
-                          price: 20,
-                          image: 'images/comtam.png'
-                        })}
-                      >
-                        <i className="fa fa-shopping-cart"></i>
-                      </button>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all pizza">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/comgaxoimo.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Cơm gà xối mỡ
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                    <div className="options">
-                      <h6>$20</h6>
-                      <button 
-                        className="cart-btn"
-                        onClick={() => handleShowModal({
-                          id: 1,
-                          name: 'Cơm gà xối mỡ',
-                          price: 15,
-                          image: 'images/comgaxoimo.png'
-                        })}
-                      >
-                      <i className="fa fa-shopping-cart"></i>
-                      </button>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/buncha.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Bún chả
-                      </h5>
-                      <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p>
-                      <div className="options">
-                        <h6>
-                          $18
-                        </h6>
+              {products.map(product => (
+                <div key={product.product_id} className={`col-sm-6 col-lg-4 all ${product.category_name?.toLowerCase()}`}>
+                  <div className="box">
+                    <div>
+                      <div className="img-box">
+                        <img src={product.image_url} alt={product.name} />
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
-              <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/bunbohue.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Bún bò huế
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                      <div className="options">
-                        <h6>$20</h6>
-                        <button 
-                          className="cart-btn"
-                          onClick={() => handleShowModal({
-                            id: 1,
-                            name: 'Bún bò huế',
-                            price: 20,
-                            image: 'images/bunbohue.png'
-                          })}
-                        >
-                          <i className="fa fa-shopping-cart"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/bundau.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Bún đậu
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                      <div className="options">
-                        <h6>$15</h6>
-                        <button 
-                          className="cart-btn"
-                          onClick={() => handleShowModal({
-                            id: 1,
-                            name: 'Bún đậu',
-                            price: 15,
-                            image: 'images/bundau.png'
-                          })}
+                      <div className="detail-box">
+                        <h5>{product.name}</h5>
+                        <div className="options">
+                          <h6>${product.price}</h6>
+                          <button 
+                            className="cart-btn"
+                            onClick={() => handleShowModal({
+                              id: product.product_id,
+                              name: product.name,
+                              price: product.price,
+                              image: product.image_url
+                            })}
                           >
-                          <i className="fa fa-shopping-cart"></i>
-                        </button>
+                            <i className="fa fa-shopping-cart"></i>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/banhcuon.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Bánh cuốn nóng
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                      <div className="options">
-                        <h6>$15</h6>
-                        <button 
-                          className="cart-btn"
-                          onClick={() => handleShowModal({
-                            id: 1,
-                            name: 'Bánh cuốn nóng',
-                            price: 15,
-                            image: 'images/banhcuon.png'
-                          })}
-                        >
-                          <i className="fa fa-shopping-cart"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/miquang.png" alt="" / >
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Mì quảng
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                    <div className="options">
-                      <h6>$20</h6>
-                      <button 
-                        className="cart-btn"
-                        onClick={() => handleShowModal({
-                          id: 1,
-                          name: 'Mì quảng',
-                          price: 20,
-                          image: 'images/miquang.png'
-                        })}
-                      >
-                        <i className="fa fa-shopping-cart"></i>
-                      </button>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="col-sm-6 col-lg-4 all burger">
-                <div className="box">
-                  <div>
-                    <div className="img-box">
-                      <img src="images/buncha.png" alt="" />
-                    </div>
-                    <div className="detail-box">
-                      <h5>
-                        Bún chả
-                      </h5>
-                      {/* <p>
-                        Veniam debitis quaerat officiis quasi cupiditate quo, quisquam velit, magnam voluptatem repellendus sed eaque
-                      </p> */}
-                      <div className="options">
-                        <h6>$20</h6>
-                        <button 
-                          className="cart-btn"
-                          onClick={() => handleShowModal({
-                            id: 1,
-                            name: 'Bún chả',
-                            price: 20,
-                            image: 'images/buncha.png'
-                          })}
-                        >
-                          <i className="fa fa-shopping-cart"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
-          </div>
-          <div className="btn-box">
-            <a href="">
-              Xem thêm
-            </a>
           </div>
         </div>
       </section>
+
       <ProductModal 
-      show={showModal}
-      handleClose={() => setShowModal(false)}
-      product={selectedProduct}
-    />
-  </div>
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        product={selectedProduct}
+      />
+    </div>
   );
-}
+};
 
 export default Menu;
