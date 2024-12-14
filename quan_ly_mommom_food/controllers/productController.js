@@ -65,24 +65,35 @@ const productController = {
   // Tạo sản phẩm mới
   createProduct: async (req, res) => {
     try {
-      const { name, description, price, categoryId, imageUrl } = req.body;
+      const { name, description, price, category_id, image_url } = req.body;
+      
+      // Kiểm tra các trường bắt buộc
+      if (!name || !price || !category_id) {
+        return res.status(400).json({
+          success: false,
+          message: 'Thiếu thông tin bắt buộc (tên, giá, danh mục)'
+        });
+      }
 
       const productData = {
         name,
-        description,
-        price,
-        category_id: categoryId,
-        image_url: imageUrl,
+        description: description || null, // Nếu không có mô tả thì gán null
+        price: Number(price),
+        category_id: Number(category_id),
+        image_url: image_url || null, // Nếu không có hình thì gán null
         is_available: true
       };
 
+      console.log('Product data to insert:', productData);
       const productId = await Product.create(productData);
+      
       res.status(201).json({
         success: true,
         message: 'Tạo sản phẩm mới thành công',
         data: { productId }
       });
     } catch (error) {
+      console.error('Error creating product:', error);
       res.status(500).json({
         success: false,
         message: 'Lỗi khi tạo sản phẩm mới',

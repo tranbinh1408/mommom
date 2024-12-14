@@ -188,70 +188,270 @@ const [error, setError] = useState(null);
 
   // Products Component
   const Products = () => {
-    const handleAddProduct = async (productData) => {
-      try {
-        await api.post('/products', productData);
-        fetchData();
-      } catch (err) {
-        setError(err.response?.data?.message);
-      }
-    };
+    const [showModal, setShowModal] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [formData, setFormData] = useState({
+      name: '',
+      price: '',
+      category_id: '',
+      description: '',
+      image_url: '',
+      is_available: true
+    });
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const handleUpdateProduct = async (id, productData) => {
-      try {
-        await api.put(`/products/${id}`, productData);
-        fetchData();
-      } catch (err) {
-        setError(err.response?.data?.message);
-      }
-    };
-
-    const handleDeleteProduct = async (id) => {
-      if (window.confirm('Are you sure you want to delete this product?')) {
+    useEffect(() => {
+      const fetchCategories = async () => {
+        setLoading(true);
         try {
-          await api.delete(`/products/${id}`);
-          fetchData();
+          const response = await api.get('/api/categories');
+          console.log('Categories response:', response.data);
+          if (response.data.success) {
+            setCategories(response.data.data);
+          }
         } catch (err) {
-          setError(err.response?.data?.message);
+          console.error('Error fetching categories:', err);
+          setError('Không thể tải danh mục sản phẩm');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchCategories();
+    }, []);
+
+    // Thêm hàm handleDeleteProduct
+    const handleDeleteProduct = async (productId) => {
+      if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        try {
+          await api.delete(`/api/products/${productId}`);
+          fetchData(); // Refresh danh sách sau khi xóa
+        } catch (err) {
+          setError(err.response?.data?.message || 'Không thể xóa sản phẩm');
         }
       }
     };
 
+    // Reset form
+    const resetForm = () => {
+      setFormData({
+        name: '',
+        price: '',
+        category_id: '',
+        description: '',
+        image_url: '',
+        is_available: true
+      });
+      setEditingProduct(null);
+    };
+
+    // Mở modal thêm mới
+    const handleAddClick = () => {
+      resetForm();
+      setShowModal(true);
+    };
+
+    // Mở modal chỉnh sửa
+    const handleEditClick = (product) => {
+      setFormData({
+        name: product.name,
+        price: product.price,
+        category_id: product.category_id,
+        description: product.description,
+        image_url: product.image_url,
+        is_available: product.is_available
+      });
+      setEditingProduct(product);
+      setShowModal(true);
+    };
+
+    // Xử lý submit form
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        // Validate dữ liệu trước khi gửi
+        if (!formData.name || !formData.price || !formData.category_id) {
+          setError('Vui lòng điền đầy đủ thông tin bắt buộc');
+          return;
+        }
+
+        const productData = {
+          name: formData.name,
+          description: formData.description || null,
+          price: Number(formData.price),
+          category_id: Number(formData.category_id),
+          image_url: formData.image_url || null,
+          is_available: true
+        };
+
+        console.log('Sending product data:', productData);
+
+        if (editingProduct) {
+          await api.put(`/api/products/${editingProduct.product_id}`, productData);
+        } else {
+          await api.post('/api/products', productData);
+        }
+        
+        fetchData();
+        setShowModal(false);
+        resetForm();
+      } catch (err) {
+        console.error('Error submitting form:', err);
+        console.error('Error response:', err.response?.data);
+        setError(err.response?.data?.message || 'Có lỗi xảy ra');
+      }
+    };
+
+    // Modal form
+    const ProductModal = () => (
+      <div className="modal" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div className="modal-content" style={{
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          width: '500px',
+          maxWidth: '90%'
+        }}>
+          <h2>{editingProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Tên sản phẩm: *</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Giá: *</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                required
+                min="0"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Danh mục: *</label>
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={(e) => setFormData({...formData, category_id: e.target.value})}
+                required
+              >
+                <option value="">Chọn danh mục</option>
+                {categories.map(category => (
+                  <option key={category.category_id} value={category.category_id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Mô tả:</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>URL Hình ảnh:</label>
+              <input
+                type="text"
+                value={formData.image_url}
+                onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={formData.is_available}
+                  onChange={(e) => setFormData({...formData, is_available: e.target.checked})}
+                />
+                Còn hàng
+              </label>
+            </div>
+
+            <div className="modal-actions" style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '10px',
+              marginTop: '20px'
+            }}>
+              <button type="button" onClick={() => setShowModal(false)}>
+                Hủy
+              </button>
+              <button type="submit">
+                {editingProduct ? 'Cập nhật' : 'Thêm mới'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+
     return (
       <div className="products-container">
-        <h2>Products Management</h2>
-        <button className="add-btn">Add New Product</button>
+        <h2>Quản lý sản phẩm</h2>
+        <button className="add-btn" onClick={handleAddClick}>
+          Thêm sản phẩm mới
+        </button>
         <table>
           <thead>
             <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Hình ảnh</th>
+              <th>Tên</th>
+              <th>Giá</th>
+              <th>Danh mục</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {products.map(product => (
               <tr key={product.product_id}>
-                <td><img src={product.image_url} alt={product.name} /></td>
+                <td><img src={product.image_url} alt={product.name} style={{width: '50px', height: '50px', objectFit: 'cover'}} /></td>
                 <td>{product.name}</td>
-                <td>${product.price}</td>
+                <td>{product.price.toLocaleString('vi-VN')}đ</td>
                 <td>{product.category_name}</td>
-                <td>{product.is_available ? 'Active' : 'Inactive'}</td>
+                <td>{product.is_available ? 'Còn hàng' : 'Hết hàng'}</td>
                 <td>
-                  <button className="edit-btn" onClick={() => handleUpdateProduct(product.product_id)}>
-                    Edit
+                  <button className="edit-btn" onClick={() => handleEditClick(product)}>
+                    Sửa
                   </button>
                   <button className="delete-btn" onClick={() => handleDeleteProduct(product.product_id)}>
-                    Delete
+                    Xóa
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {showModal && <ProductModal />}
       </div>
     );
   };
