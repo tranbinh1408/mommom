@@ -1039,3 +1039,93 @@ a:focus {
 .dropdown-toggle::after {
   display: none;
 } */
+.cart-btn {
+  background: none;
+  border: none;
+  color: #f9f8f6;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.3s;
+}
+
+.cart-btn:hover {
+  transform: scale(1.1);
+  color: #ffbe33;
+}
+
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.quantity-selector button {
+  width: 35px;
+  height: 35px;
+  border: 2px solid #ffbe33;
+  background: #2d2d2d;
+  color: #fbfbfb;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.quantity-selector button:hover {
+  background: #ffbe33;
+  color: #2d2d2d;
+}
+
+.quantity {
+  font-size: 20px;
+  color: #ffbe33;
+  font-weight: bold;
+}
+
+.modal-content {
+  background: #2d2d2d;
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-footer button {
+  padding: 10px 25px;
+  margin: 0 8px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.modal-footer button:first-child {
+  background: #424242;
+  color: #fff;
+}
+
+.modal-footer button:nth-child(2),
+.modal-footer button:last-child {
+  background: #ffbe33;
+  color: #ffffff;
+}
+
+.modal-footer button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 179, 0, 0.2);
+}
+
+.price-detail p:last-child {
+  color: #ffb300;
+  font-weight: bold;
+}
+/* Ẩn nút đóng (x) ở header */
+.modal-header .btn-close {
+  display: none;
+}
+
+/* Đổi màu header và footer */
+.modal-header,
+.modal-footer {
+  background-color: #222222;
+  border: none;
+}

@@ -7,22 +7,33 @@ const AdminLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        username,
-        password
-      });
+      console.log('Attempting login with:', { username });
+
+      const response = await axios.post('http://localhost:5000/api/users/login', 
+        { username, password },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+
+      console.log('Login response:', response.data);
 
       if (response.data.success) {
         const { token, user } = response.data.data;
         
-        // Kiểm tra role admin
         if (user.role === 'admin') {
-          // Lưu token và thông tin user
           localStorage.setItem('adminToken', token);
           localStorage.setItem('adminUser', JSON.stringify(user));
           navigate('/admin/dashboard');
@@ -31,7 +42,10 @@ const AdminLogin = () => {
         }
       }
     } catch (error) {
-      setError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+      console.error('Login error:', error.response?.data || error);
+      setError(error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,9 +76,22 @@ const AdminLogin = () => {
             />
           </div>
 
-          <button type="submit" className="login-button">
-            Đăng nhập
-          </button>
+          <div className="button-group">
+            <button 
+              type="submit" 
+              className="login-button"
+              disabled={loading}
+            >
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </button>
+            <button 
+              type="button" 
+              className="back-button"
+              onClick={() => navigate('/')}
+            >
+              Quay lại
+            </button>
+          </div>
         </form>
       </div>
     </div>
