@@ -9,7 +9,6 @@ const orderRoutes = require('./routes/orderRoutes');
 const productRoutes = require('./routes/productRoutes');
 const tableRoutes = require('./routes/tableRoutes');
 const userRoutes = require('./routes/userRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
 
 // Import middleware
 const auth = require('./middleware/auth');
@@ -39,7 +38,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/categories', categoryRoutes);
 
 // Test route
 app.get('/', (req, res) => {

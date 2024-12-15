@@ -1,63 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Modal from 'react-bootstrap/Modal';
-
-const ProductModal = ({ show, handleClose, product }) => {
-  const [quantity, setQuantity] = useState(1);
-  
-  if (!product) return null;
-  
-  const totalPrice = product.price * quantity;
-
-  return (
-    <Modal 
-      show={show} 
-      onHide={handleClose}
-      centered // Thêm prop này để căn giữa
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>{product.name}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="product-detail">
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            style={{ maxWidth: '200px', marginBottom: '20px', borderRadius: '10px' }}
-          />
-          <div className="quantity-selector">
-            <button onClick={() => setQuantity(prev => Math.max(1, prev - 1))}>-</button>
-            <span className="quantity">{quantity}</span>
-            <button onClick={() => setQuantity(prev => prev + 1)}>+</button>
-          </div>
-          <div className="price-detail">
-            <p>Đơn giá: ${product.price}</p>
-            <p>Tổng tiền: ${totalPrice}</p>
-          </div>
-        </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <button onClick={handleClose}>Đóng</button>
-        <button onClick={() => {
-          console.log('Thêm vào giỏ:', { ...product, quantity, totalPrice });
-          handleClose();
-        }}>Thêm vào giỏ</button>
-        <button onClick={() => {
-          console.log('Đặt hàng ngay:', { ...product, quantity, totalPrice });
-          handleClose();
-        }}>Đặt hàng ngay</button>
-      </Modal.Footer>
-    </Modal>
-  );
-};
 
 const Menu = () => {
   const [activeFilter, setActiveFilter] = useState('*');
-  const [showModal, setShowModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -77,45 +28,36 @@ const Menu = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const initializeIsotope = () => {
-      const $ = window.jQuery;
-      if ($ && typeof $.fn.isotope === 'function' && products.length > 0) {
-        const grid = $('.grid').isotope({
-          itemSelector: '.all',
-          layoutMode: 'fitRows'
-        });
+  const handleAddToCart = () => {
+    if (!selectedProduct) return;
+    
+    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existingItem = existingCart.find(item => item.product_id === selectedProduct.product_id);
+    
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      existingCart.push({
+        product_id: selectedProduct.product_id,
+        name: selectedProduct.name,
+        image_url: selectedProduct.image_url,
+        price: selectedProduct.price,
+        quantity: quantity
+      });
+    }
 
-        $('.filters_menu li').on('click', function() {
-          $('.filters_menu li').removeClass('active');
-          $(this).addClass('active');
-          
-          const dataFilter = $(this).attr('data-filter');
-          setActiveFilter(dataFilter);
-          
-          grid.isotope({
-            filter: dataFilter
-          });
-        });
-      }
-    };
+    localStorage.setItem('cart', JSON.stringify(existingCart));
+    window.dispatchEvent(new CustomEvent('cartUpdated'));
 
-    const timer = setTimeout(() => {
-      initializeIsotope();
-    }, 1000);
+    setShowModal(false);
+    setSelectedProduct(null);
+    setQuantity(1);
+    alert('Đã thêm vào giỏ hàng!');
+  };
 
-    return () => {
-      clearTimeout(timer);
-      const $ = window.jQuery;
-      if ($ && $('.grid').data('isotope')) {
-        $('.grid').isotope('destroy');
-      }
-    };
-  }, [products]);
-
-  const handleShowModal = (product) => {
-    setSelectedProduct(product);
-    setShowModal(true);
+  const formatPrice = (price) => {
+    const numericPrice = parseFloat(price.replace('đ', ''));
+    return numericPrice.toFixed(2) + 'đ';
   };
 
   if (loading) return <div>Đang tải...</div>;
@@ -148,15 +90,14 @@ const Menu = () => {
                       <div className="detail-box">
                         <h5>{product.name}</h5>
                         <div className="options">
-                          <h6>${product.price}</h6>
+                          <h6>{formatPrice(product.price)}</h6>
                           <button 
                             className="cart-btn"
-                            onClick={() => handleShowModal({
-                              id: product.product_id,
-                              name: product.name,
-                              price: product.price,
-                              image: product.image_url
-                            })}
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setQuantity(1);
+                              setShowModal(true);
+                            }}
                           >
                             <i className="fa fa-shopping-cart"></i>
                           </button>
@@ -171,11 +112,58 @@ const Menu = () => {
         </div>
       </section>
 
-      <ProductModal 
-        show={showModal}
-        handleClose={() => setShowModal(false)}
-        product={selectedProduct}
-      />
+      {showModal && selectedProduct && (
+        <div className="modal" style={{display: 'block', background: 'rgba(0,0,0,0.5)'}}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{selectedProduct.name}</h5>
+                <button onClick={() => {
+                  setShowModal(false);
+                  setSelectedProduct(null);
+                  setQuantity(1);
+                }}>×</button>
+              </div>
+              
+              <div className="modal-body">
+                <div className="product-info text-center">
+                  <img 
+                    src={selectedProduct.image_url} 
+                    alt={selectedProduct.name} 
+                    style={{width: '200px', borderRadius: '10px'}}
+                  />
+                  <h6 className="product-name">{selectedProduct.name}</h6>
+                  <p className="product-price">
+                    {formatPrice(selectedProduct.price)} x {quantity}
+                  </p>
+                  <p className="total-amount">
+                    Tổng tiền: {formatPrice((parseFloat(selectedProduct.price.replace('đ', '')) * quantity).toString())}
+                  </p>
+                </div>
+
+                <div className="quantity-selector">
+                  <button 
+                    onClick={() => quantity > 1 && setQuantity(quantity - 1)}
+                  >-</button>
+                  <span className="quantity">{quantity}</span>
+                  <button 
+                    onClick={() => setQuantity(quantity + 1)}
+                  >+</button>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button onClick={() => {
+                  setShowModal(false);
+                  setSelectedProduct(null);
+                  setQuantity(1);
+                }}>Đóng</button>
+                <button onClick={handleAddToCart}>Thêm vào giỏ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

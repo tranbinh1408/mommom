@@ -3,13 +3,16 @@ const router = express.Router();
 const orderController = require('../controllers/orderController');
 const auth = require('../middleware/auth');
 
-// Public routes
-router.get('/', orderController.getAllOrders);
-router.get('/:id', orderController.getOrderById);
+// Route công khai cho việc đặt món
+router.post('/create', orderController.createOrder);
 
-// Protected routes - cần đăng nhập
-router.post('/', auth.verifyToken, orderController.createOrder);
+// Route để lấy danh sách đơn hàng (cần xác thực)
+router.get('/', auth.verifyToken, orderController.getAllOrders);
+
+// Route để lấy chi tiết đơn hàng (cần xác thực)
+router.get('/:id', auth.verifyToken, orderController.getOrderById);
+
+// Route để cập nhật trạng thái đơn hàng (cần xác thực)
 router.put('/:id/status', auth.verifyToken, orderController.updateOrderStatus);
-router.put('/:id/payment', auth.verifyToken, orderController.updatePaymentStatus);
 
 module.exports = router;
