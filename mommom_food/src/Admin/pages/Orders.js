@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
-const Orders = () => {
+const Orders = ({ api, fetchData }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderDetails, setOrderDetails] = useState({});
 
   // Định nghĩa labels cho các trạng thái
   const STATUS_LABELS = {
@@ -23,7 +25,7 @@ const Orders = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${orderId}`,
+        `http://localhost:5000/api/orders/${orderId}`, // Sửa URL
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -67,6 +69,28 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const detailsPromises = orders.map(order => 
+          api.get(`/api/orders/${order.order_id}`)
+        );
+        const details = await Promise.all(detailsPromises);
+        const detailsMap = {};
+        details.forEach(response => {
+          if (response.data.success) {
+            detailsMap[response.data.data.order_id] = response.data.data;
+          }
+        });
+        setOrderDetails(detailsMap);
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+      }
+    };
+
+    fetchOrderDetails();
+  }, []);
+
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -90,56 +114,74 @@ const Orders = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
-      currency: 'VND'
-    }).format(amount);
+      currency: 'VND',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount).replace('₫', '000đ');
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div className="orders-page">
+    <div className="orders-container">
       <h2>Quản lý đơn hàng</h2>
-      {orders.length === 0 ? (
-        <p>Không có đơn hàng nào</p>
-      ) : (
-        <table className="orders-table">
-          <thead>
-            <tr>
-              <th>Mã đơn</th>
-              <th>Khách hàng</th>
-              <th>Món</th>
-              <th>Tổng tiền</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
+      <table className="orders-table">
+        <thead>
+          <tr>
+            <th>Mã đơn</th>
+            <th>Thông tin khách hàng</th>
+            <th>Chi tiết đơn hàng</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map(order => {
+            const details = order.details || {};
+            const items = details.items || [];
+            
+            return (
               <tr key={order.order_id}>
-                <td>#{order.order_id}</td>
+                <td>ĐH{order.order_id.toString().padStart(4, '0')}</td>
                 <td>
-                  <div>{order.customer_name || 'Khách vãng lai'}</div>
-                  <div>{order.customer_phone || 'Không có SĐT'}</div>
+                  <div>
+                    <strong>Tên:</strong> {order.customer_name || 'Không có thông tin'}
+                  </div>
+                  <div>
+                    <strong>SĐT:</strong> {order.customer_phone || 'Không có thông tin'}
+                  </div>
+                  <div>
+                    <strong>Email:</strong> {order.customer_email || 'Không có thông tin'}
+                  </div>
                 </td>
-                <td>
-                  {order.details?.items?.map(item => (
-                    <div key={item.product_id}>
-                      {item.product_name} x {item.quantity} ({formatCurrency(item.unit_price)})
-                    </div>
-                  )) || 'Đang tải...'}
+                <td className="order-items">
+                  {items && items.length > 0 ? (
+                    items.map((item, idx) => (
+                      <div key={idx} className="order-item">
+                        <div className="item-info">
+                          <span className="item-name">{item.name}</span>
+                          <span className="item-quantity">x {item.quantity}</span>
+                        </div>
+                        <span className="item-price">{formatCurrency(item.unit_price)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div>Đang tải thông tin món...</div>
+                  )}
                 </td>
                 <td>{formatCurrency(order.total_amount)}</td>
                 <td>
                   <div className={`status ${order.status}`}>
-                    {STATUS_LABELS[order.status] || order.status}
+                    {STATUS_LABELS[order.status]}
                   </div>
                   <div className={`payment-status ${order.payment_status}`}>
-                    {PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status}
+                    {PAYMENT_STATUS_LABELS[order.payment_status]}
                   </div>
                 </td>
                 <td>
-                  <select 
+                  <select
                     value={order.status}
                     onChange={(e) => updateOrderStatus(order.order_id, e.target.value)}
                     className={`status-select ${order.status}`}
@@ -150,12 +192,17 @@ const Orders = () => {
                   </select>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
+};
+
+Orders.propTypes = {
+  api: PropTypes.object.isRequired,
+  fetchData: PropTypes.func.isRequired
 };
 
 export default Orders;

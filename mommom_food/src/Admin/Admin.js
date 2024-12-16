@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Admin.css';
+import Orders from './pages/Orders'; // Thêm dòng này
 
 const Admin = () => {
 const navigate = useNavigate();
@@ -456,62 +457,6 @@ const [error, setError] = useState(null);
     );
   };
 
-  // Orders Component
-  const Orders = () => {
-    const handleUpdateStatus = async (orderId, status) => {
-      try {
-        await api.put(`/orders/${orderId}/status`, { status });
-        fetchData();
-      } catch (err) {
-        setError(err.response?.data?.message);
-      }
-    };
-
-    return (
-      <div className="orders-container">
-        <h2>Orders Management</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Items</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(order => (
-              <tr key={order.order_id}>
-                <td>{order.order_id}</td>
-                <td>{order.customer_name}</td>
-                <td>{order.items}</td>
-                <td>${order.total_amount}</td>
-                <td>
-                  <select 
-                    value={order.status}
-                    onChange={(e) => handleUpdateStatus(order.order_id, e.target.value)}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="preparing">Preparing</option>
-                    <option value="ready">Ready</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </td>
-                <td>
-                  <button className="edit-btn">Details</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
   // Tables Component
   const Tables = () => {
     const handleUpdateTableStatus = async (tableId, status) => {
@@ -653,7 +598,13 @@ const [error, setError] = useState(null);
         <main className="admin-main">
           {currentView === 'dashboard' && <Dashboard />}
           {currentView === 'products' && <Products />}
-          {currentView === 'orders' && <Orders />}
+          {currentView === 'orders' && <Orders 
+            api={api} 
+            orders={orders} 
+            fetchData={fetchData}
+            loading={loading}
+            error={error}
+          />}
           {currentView === 'tables' && <Tables />}
           {currentView === 'users' && <Users />}
         </main>

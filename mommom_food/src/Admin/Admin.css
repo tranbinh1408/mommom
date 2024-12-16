@@ -432,17 +432,35 @@ button:disabled {
 .status.completed { background: #c3e6cb; color: #155724; }
 .status.cancelled { background: #f8d7da; color: #721c24; }
 
+/* Orders.css */
 .order-items {
-  margin: 15px 0;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 4px;
+  min-width: 300px;
 }
 
 .order-item {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.item-info {
+  display: flex;
+  gap: 10px;
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-quantity {
+  color: #666;
+}
+
+.item-price {
+  font-weight: 500;
+  color: #e69c00;
 }
 
 .order-actions {
