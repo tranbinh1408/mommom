@@ -44,7 +44,6 @@ const orderController = {
               quantity,
               unit_price
             ) VALUES (?, ?, ?, ?)`,
-
             [
               orderId,
               Number(item.product_id),
@@ -148,42 +147,101 @@ const orderController = {
 
   // Cập nhật trạng thái đơn hàng
   updateOrderStatus: async (req, res) => {
+    let connection;
     try {
       const { id } = req.params;
       const { status } = req.body;
+      console.log('Update request:', { id, status });
 
-      // Update lại danh sách trạng thái hợp lệ
-      const validStatuses = ['created', 'confirmed', 'completed'];
-      if (!validStatuses.includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Trạng thái đơn hàng không hợp lệ'
-        });
-      }
+      // Get connection from pool
+      connection = await db.getConnection();
+      await connection.beginTransaction();
 
-      const [result] = await db.query(
+      const [result] = await connection.query(
         'UPDATE Orders SET status = ?, updated_at = NOW() WHERE order_id = ?',
         [status, id]
       );
 
       if (result.affectedRows === 0) {
+        await connection.rollback();
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy đơn hàng với ID ${id}`
+        });
+      }
+
+      await connection.commit();
+      return res.json({
+        success: true,
+        message: 'Cập nhật trạng thái thành công'
+      });
+
+    } catch (error) {
+      if (connection) {
+        await connection.rollback();
+      }
+      console.error('Update status error:', error);
+      return res.status(500).json({
+        success: false, 
+        message: 'Lỗi khi cập nhật trạng thái đơn hàng',
+        error: error.message
+      });
+    } finally {
+      if (connection) {
+        connection.release();
+      }
+    }
+  },
+
+  // Xóa đơn hàng
+  deleteOrder: async (req, res) => {
+    let connection;
+    try {
+      const { id } = req.params;
+      
+      connection = await db.getConnection();
+      await connection.beginTransaction();
+
+      // Delete from OrderDetails first (due to foreign key constraint)
+      await connection.query(
+        'DELETE FROM OrderDetails WHERE order_id = ?',
+        [id]
+      );
+
+      // Then delete from Orders
+      const [result] = await connection.query(
+        'DELETE FROM Orders WHERE order_id = ?',
+        [id]
+      );
+
+      if (result.affectedRows === 0) {
+        await connection.rollback();
         return res.status(404).json({
           success: false,
           message: 'Không tìm thấy đơn hàng'
         });
       }
 
-      res.json({
+      await connection.commit();
+      return res.json({
         success: true,
-        message: 'Cập nhật trạng thái đơn hàng thành công'
+        message: 'Xóa đơn hàng thành công'
       });
 
     } catch (error) {
-      console.error('Update order status error:', error);
-      res.status(500).json({
+      if (connection) {
+        await connection.rollback();
+      }
+      console.error('Delete order error:', error);
+      return res.status(500).json({
         success: false,
-        message: 'Lỗi khi cập nhật trạng thái đơn hàng'
+        message: 'Lỗi khi xóa đơn hàng',
+        error: error.message
       });
+    } finally {
+      if (connection) {
+        connection.release();
+      }
     }
   }
 };

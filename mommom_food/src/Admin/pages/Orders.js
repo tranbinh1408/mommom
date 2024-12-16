@@ -107,29 +107,37 @@ const Orders = ({ api, fetchData }) => {
     fetchOrderDetails();
   }, []);
 
-  // Orders.js - Chỉ sửa hàm updateOrderStatus
+  // Orders.js - Sửa lại hàm updateOrderStatus
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('adminToken');
       console.log('Updating order:', orderId, 'to status:', newStatus);
-      
-      const response = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`, // Dùng full URL
-        { status: newStatus },
-        { 
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+
+      // Sửa lại API call
+      const response = await axios({
+        method: 'PUT',
+        url: `http://localhost:5000/api/orders/${orderId}/status`,
+        data: { status: newStatus },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
+
+      console.log('Update response:', response.data); // Debug log
 
       if (response.data.success) {
-        await fetchOrders();
+        await fetchOrders(); // Refresh list
+        return true;
+      } else {
+        throw new Error(response.data.message);
       }
+
     } catch (error) {
       console.error('Error updating order:', error);
-      alert('Không thể cập nhật trạng thái đơn hàng');
+      const errorMessage = error.response?.data?.message || error.message;
+      alert('Không thể cập nhật trạng thái đơn hàng: ' + errorMessage);
+      return false;
     }
   };
 
@@ -164,23 +172,24 @@ const Orders = ({ api, fetchData }) => {
 
     const handleComplete = async () => {
       try {
-        await updateOrderStatus(selectedOrderDetail.order_id, 'confirmed');  // Set status thành 'confirmed'
-        setShowDetailModal(false);
-        await fetchOrders();
+        const success = await updateOrderStatus(selectedOrderDetail.order_id, 'confirmed');
+        if (success) {
+          setShowDetailModal(false);
+        }
       } catch (error) {
         console.error('Error completing order:', error);
       }
     };
 
     return (
-      <div className="modal">
-        <div className="modal-content">
-          <div className="modal-header">
+      <div className="orders-modal">
+        <div className="orders-modal-content">
+          <div className="orders-modal-header">
             <h3>Chi tiết đơn hàng #{selectedOrderDetail.order_id}</h3>
             <button onClick={() => setShowDetailModal(false)}>&times;</button>
           </div>
-          <div className="modal-body">
-            <div className="customer-info">
+          <div className="orders-modal-body">
+            <div className="orders-customer-info">
               <h4>Thông tin khách hàng</h4>
               <p><strong>Tên:</strong> {selectedOrderDetail.customer_name || 'Không có thông tin'}</p>
               <p><strong>SĐT:</strong> {selectedOrderDetail.customer_phone || 'Không có thông tin'}</p>
@@ -224,14 +233,14 @@ const Orders = ({ api, fetchData }) => {
               </table>
             </div>
           </div>
-          <div className="modal-footer">
+          <div className="orders-modal-footer">
             {selectedOrderDetail.status === 'created' && (
-              <button className="complete-btn" onClick={handleComplete}>
+              <button className="orders-btn orders-btn-complete" onClick={handleComplete}>
                 Xong
               </button>
             )}
             <button 
-              className="close-btn" 
+              className="orders-btn orders-btn-close" 
               onClick={() => setShowDetailModal(false)}
             >
               Đóng
@@ -240,6 +249,44 @@ const Orders = ({ api, fetchData }) => {
         </div>
       </div>
     );
+  };
+
+  // Orders.js - Update handleDelete function
+  const handleDelete = async (orderId) => {
+    // Find the order first
+    const orderToDelete = orders.find(order => order.order_id === orderId);
+
+    // Check if order exists and is completed
+    if (!orderToDelete) {
+      alert('Không tìm thấy đơn hàng');
+      return;
+    }
+
+    if (orderToDelete.status !== 'completed') {
+      alert('Chỉ có thể xóa đơn hàng đã hoàn thành thanh toán');
+      return;
+    }
+
+    if (window.confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await axios.delete(
+          `http://localhost:5000/api/orders/${orderId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (response.data.success) {
+          setOrders(prevOrders => prevOrders.filter(order => order.order_id !== orderId));
+        }
+      } catch (error) {
+        console.error('Delete order error:', error);
+        alert('Không thể xóa đơn hàng');
+      }
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -281,7 +328,7 @@ const Orders = ({ api, fetchData }) => {
                 </td>
                 <td>
                   <button 
-                    className="view-detail-btn"
+                    className="orders-view-detail"
                     onClick={() => openDetailModal(order)}
                   >
                     Xem chi tiết đơn hàng
@@ -303,6 +350,14 @@ const Orders = ({ api, fetchData }) => {
                       Hoàn thành
                     </button>
                   )}
+                </td>
+                <td>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDelete(order.order_id)}
+                  >
+                    Xóa
+                  </button>
                 </td>
               </tr>
             );

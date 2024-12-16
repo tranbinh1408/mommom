@@ -15,4 +15,6 @@ router.get('/:id', auth.verifyToken, orderController.getOrderById);
 // Đường dẫn phải khớp với frontend
 router.put('/:id/status', auth.verifyToken, orderController.updateOrderStatus); // Bỏ /api/orders/
 
+router.delete('/:id', auth.verifyToken, orderController.deleteOrder);
+
 module.exports = router;
