@@ -437,7 +437,8 @@ const [error, setError] = useState(null);
                 <td><img src={product.image_url} alt={product.name} style={{width: '50px', height: '50px', objectFit: 'cover'}} /></td>
                 <td>{product.name}</td>
                 <td>{product.price.toLocaleString('vi-VN')}đ</td>
-                <td>{product.category_name}</td>
+                {/* Fix category display by using category_name from joined query */}
+                <td>{product.category_name || 'Chưa phân loại'}</td>
                 <td>{product.is_available ? 'Còn hàng' : 'Hết hàng'}</td>
                 <td>
                   <button className="edit-btn" onClick={() => handleEditClick(product)}>

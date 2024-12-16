@@ -341,23 +341,21 @@ const Orders = ({ api, fetchData }) => {
                   </div>
                 </td>
                 <td>
-                  {/* Hiển thị nút Hoàn thành khi trạng thái là 'confirmed' */}
-                  {order.status !== 'completed' && (
+                  {order.status !== 'completed' ? (
                     <button
                       className="complete-btn"
                       onClick={() => updateOrderStatus(order.order_id, 'completed')}
                     >
                       Hoàn thành
                     </button>
+                  ) : (
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(order.order_id)}
+                    >
+                      Xóa
+                    </button>
                   )}
-                </td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(order.order_id)}
-                  >
-                    Xóa
-                  </button>
                 </td>
               </tr>
             );
