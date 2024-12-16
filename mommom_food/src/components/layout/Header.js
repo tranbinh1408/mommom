@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
@@ -10,84 +10,116 @@ const Header = () => {
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
+    const loadCart = () => {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        try {
+          const items = JSON.parse(savedCart);
+          if (Array.isArray(items)) {
+            setCartItems(items);
+            calculateTotal(items);
+          } else {
+            setCartItems([]);
+            calculateTotal([]);
+          }
+        } catch (error) {
+          console.error('Error parsing cart:', error);
+          setCartItems([]);
+          calculateTotal([]);
+        }
+      }
+    };
+
+    // Listen for cart updates
+    const handleCartUpdate = () => {
+      loadCart();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
     loadCart();
-    window.addEventListener('cartUpdated', loadCart);
-    return () => window.removeEventListener('cartUpdated', loadCart);
+
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
   }, []);
 
-  const loadCart = () => {
-    const savedCart = localStorage.getItem('cart');
-    setCartItems(savedCart ? JSON.parse(savedCart) : []);
-  };
+  useEffect(() => {
+    const total = calculateTotal(cartItems);
+    setTotalAmount(total);
+  }, [cartItems]);
 
-  const calculateTotal = () => {
-    if (!Array.isArray(cartItems) || cartItems.length === 0) return "0.00đ";
-    
-    const total = cartItems.reduce((sum, item) => {
-      const price = parseFloat(item.price.toString().replace('đ', ''));
-      return sum + (price * item.quantity);
-    }, 0);
-    
-    return total.toFixed(2) + 'đ';
+// Header.js
+const calculateTotal = (items) => {
+  if (!Array.isArray(items) || items.length === 0) return 0;
+  return items.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 0;
+    return sum + (price * quantity);
+  }, 0);
+};
+
+  const removeFromCart = (productId) => {
+    const newItems = cartItems.filter(item => item.product_id !== productId);
+    setCartItems(newItems);
+    localStorage.setItem('cart', JSON.stringify(newItems));
+    setTotalAmount(calculateTotal(newItems));
   };
 
   const updateQuantity = (productId, newQuantity) => {
-    if (!Array.isArray(cartItems)) return;
     if (newQuantity < 1) return;
 
-    const updatedCart = cartItems.map(item =>
-      item.product_id === productId
-        ? { ...item, quantity: newQuantity }
-        : item
+    const newItems = cartItems.map(item => {
+      if (item.product_id === productId) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+
+    setCartItems(newItems);
+    localStorage.setItem('cart', JSON.stringify(newItems));
+    setTotalAmount(calculateTotal(newItems));
+  };
+
+// Header.js
+const placeOrder = async () => {
+  try {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    const orderData = {
+      items: cart.map(item => ({
+        product_id: Number(item.product_id),
+        quantity: Number(item.quantity),
+        unit_price: Number(item.price)
+      })),
+      total_amount: Number(calculateTotal(cart))
+    };
+
+    console.log('Sending order data:', orderData);
+
+    const response = await axios.post(
+      'http://localhost:5000/api/orders/create', 
+      orderData,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
 
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
-  const removeItem = (productId) => {
-    if (!Array.isArray(cartItems)) return;
-    
-    const updatedCart = cartItems.filter(item => item.product_id !== productId);
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
-  };
-
-  const placeOrder = async () => {
-    try {
-      if (cartItems.length === 0) {
-        alert('Giỏ hàng trống!');
-        return;
-      }
-
-      const orderData = {
-        total_amount: totalAmount,
-        items: cartItems.map(item => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-          price: item.price
-        }))
-      };
-
-      const response = await axios.post('http://localhost:5000/api/orders/create', orderData);
-
-      if (response.data.success) {
-        localStorage.removeItem('cart');
-        setCartItems([]);
-        setTotalAmount(0);
-        setShowCart(false);
-        alert('Đặt món thành công!');
-      }
-    } catch (error) {
-      console.error('Place order error:', error);
-      alert('Có lỗi xảy ra khi đặt món. Vui lòng thử lại!');
+    if (response.data.success) {
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      setShowCart(false);
+      alert('Đặt hàng thành công!');
     }
-  };
-
+  } catch (error) {
+    console.error('Place order error:', error);
+    console.log('Error details:', error.response?.data);
+    alert('Có lỗi xảy ra khi đặt món. Vui lòng thử lại!');
+  }
+};
   const formatPrice = (price) => {
-    if (!price) return "0.00đ";
-    const numericPrice = parseFloat(price.toString().replace('đ', ''));
-    return numericPrice.toFixed(2) + 'đ';
+    return parseFloat(price).toFixed(2) + 'đ';
   };
 
   return (
@@ -195,24 +227,24 @@ const Header = () => {
                     </div>
                     <button 
                       className="remove-btn"
-                      onClick={() => removeItem(item.product_id)}
+                      onClick={() => removeFromCart(item.product_id)}
                     >×</button>
                   </div>
                 ))
               ) : (
-                <p className="empty-cart">Giỏ hàng trống</p>
+                <p>Giỏ hàng trống</p>
               )}
             </div>
-
+            
             <div className="cart-modal-footer">
               <div className="cart-total">
                 <h6>Tổng cộng:</h6>
-                <p>{calculateTotal()}</p>
+                <p>{formatPrice(totalAmount)}</p>
               </div>
               <button 
                 className="checkout-btn"
                 onClick={placeOrder}
-                disabled={cartItems.length === 0}
+                disabled={!Array.isArray(cartItems) || cartItems.length === 0}
               >
                 Đặt hàng
               </button>

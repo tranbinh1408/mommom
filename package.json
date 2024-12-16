@@ -1,0 +1,12 @@
+{
+    "name": "mommom",
+    "version": "1.0.0",
+    "scripts": {
+      "start": "concurrently \"cd mommom_food && npm start\" \"cd quan_ly_mommom_food && npm run dev\"",
+      "install-all": "concurrently \"cd mommom_food && npm install\" \"cd quan_ly_mommom_food && npm install\"",
+      "dev": "concurrently \"cd mommom_food && npm start\" \"cd quan_ly_mommom_food && npm run dev\""
+    },
+    "devDependencies": {
+      "concurrently": "^8.2.0"
+    }
+  }

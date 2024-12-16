@@ -22,7 +22,7 @@ CREATE TABLE Products (
     name VARCHAR(100) NOT NULL,                  -- Tên món ăn
     description TEXT,                            -- Mô tả món ăn
     price DECIMAL(10,2) NOT NULL,                -- Giá tiền (VD: 50.00)
-    image_url VARCHAR(255),                      -- Đường dẫn hình ảnh món ăn
+    image_url VARCHAR(1000),                      -- Đường dẫn hình ảnh món ăn
     is_available BOOLEAN DEFAULT true,           -- Trạng thái còn/hết
     created_at TIMESTAMP,                        -- Thời điểm thêm món
     FOREIGN KEY (category_id) REFERENCES Categories(category_id)
@@ -36,17 +36,17 @@ CREATE TABLE Tables (
 );
 CREATE TABLE Orders (
     order_id INT PRIMARY KEY AUTO_INCREMENT,     -- ID định danh duy nhất
-    customer_name VARCHAR(100) NOT NULL,         -- Tên khách hàng
+    customer_name VARCHAR(100) NULL,         -- Tên khách hàng
     customer_phone VARCHAR(15),                  -- SĐT khách hàng
     customer_email VARCHAR(100),                 -- Email khách hàng
     table_id INT,                                -- Liên kết với bảng Tables
     staff_id INT,                                -- Liên kết với bảng Users (nhân viên xử lý)
     total_amount DECIMAL(10,2) NOT NULL,         -- Tổng tiền
-    status ENUM('pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'),
-    -- Trạng thái đơn: chờ xác nhận/đã xác nhận/đang chuẩn bị/sẵn sàng/hoàn thành/đã hủy
+    status ENUM('created', 'completed') DEFAULT 'created';
     payment_method ENUM('cash', 'card', 'momo'), -- Phương thức thanh toán
     payment_status ENUM('pending', 'paid', 'failed'), -- Trạng thái thanh toán
     note TEXT,                                   -- Ghi chú đơn hàng
+
     created_at TIMESTAMP,                        -- Thời điểm tạo đơn
     updated_at TIMESTAMP,                        -- Thời điểm cập nhật cuối
     FOREIGN KEY (table_id) REFERENCES Tables(table_id),

@@ -5,54 +5,75 @@ const orderController = {
   createOrder: async (req, res) => {
     try {
       const { items, total_amount } = req.body;
-      console.log('Received order data:', req.body); // Debug log
+      console.log('Received order data:', { items, total_amount });
 
-      // Kiểm tra dữ liệu đầu vào
-      if (!items || items.length === 0) {
+      // Validate items array
+      if (!Array.isArray(items) || items.length === 0) {
         return res.status(400).json({
           success: false,
-          message: 'Giỏ hàng trống'
+          message: 'Giỏ hàng không hợp lệ'
         });
       }
 
-      // Tạo đơn hàng mới
-      const [orderResult] = await db.query(
-        `INSERT INTO Orders (
-          total_amount,
-          status,
-          payment_status,
-          created_at,
-          updated_at
-        ) VALUES (?, 'pending', 'pending', NOW(), NOW())`,
-        [total_amount]
-      );
+      // Start transaction
+      const connection = await db.getConnection();
+      await connection.beginTransaction();
 
-      const orderId = orderResult.insertId;
-
-      // Thêm chi tiết đơn hàng
-      for (const item of items) {
-        await db.query(
-          `INSERT INTO OrderDetails (
-            order_id,
-            product_id,
-            quantity,
-            unit_price
-          ) VALUES (?, ?, ?, ?)`,
-          [orderId, item.product_id, item.quantity, item.price]
+      try {
+        // Create order
+        const [orderResult] = await connection.query(
+          `INSERT INTO Orders (
+            total_amount,
+            status,
+            payment_method,
+            payment_status,
+            created_at,
+            updated_at
+          ) VALUES (?, 'created', 'cash', 'pending', NOW(), NOW())`,
+          [Number(total_amount) || 0]
         );
-      }
 
-      res.status(201).json({
-        success: true,
-        message: 'Đặt món thành công',
-        data: { orderId }
-      });
+        const orderId = orderResult.insertId;
+
+        // Insert order details
+        for (const item of items) {
+          await connection.query(
+            `INSERT INTO OrderDetails (
+              order_id,
+              product_id,
+              quantity,
+              unit_price
+            ) VALUES (?, ?, ?, ?)`,
+            [
+              orderId,
+              Number(item.product_id),
+              Number(item.quantity),
+              Number(item.unit_price)
+            ]
+          );
+        }
+
+        await connection.commit();
+
+        res.status(201).json({
+          success: true,
+          message: 'Đặt món thành công',
+          data: { orderId }
+        });
+
+      } catch (error) {
+        await connection.rollback();
+        throw error;
+      } finally {
+        connection.release();
+      }
 
     } catch (error) {
       console.error('Create order error:', error);
       res.status(500).json({
         success: false,
-        message: 'Lỗi khi tạo đơn hàng'
+        message: 'Lỗi khi tạo đơn hàng',
+        error: error.message
       });
     }
   },

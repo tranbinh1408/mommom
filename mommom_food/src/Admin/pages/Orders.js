@@ -3,91 +3,157 @@ import axios from 'axios';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // Định nghĩa labels cho các trạng thái
+  const STATUS_LABELS = {
+    created: 'Chờ xác nhận',
+    completed: 'Hoàn thành'
+  };
+
+  const PAYMENT_STATUS_LABELS = {
+    pending: 'Chờ thanh toán',
+    paid: 'Đã thanh toán',
+    failed: 'Thất bại'
+  };
+
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.get(
+        `http://localhost:5000/api/orders/${orderId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      return null;
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await axios.get('http://localhost:5000/api/orders', {
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // Fetch chi tiết cho mỗi đơn hàng
+      const ordersWithDetails = await Promise.all(
+        response.data.data.map(async (order) => {
+          const details = await fetchOrderDetails(order.order_id);
+          return { ...order, details };
+        })
+      );
+
+      setOrders(ordersWithDetails);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError('Không thể tải danh sách đơn hàng');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      };
-
-      const response = await axios.get('http://localhost:5000/api/orders', config);
-      setOrders(response.data.data);
-    } catch (error) {
-      console.error('Fetch orders error:', error);
-      if (error.response && error.response.status === 401) {
-        alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
-        window.location.href = '/admin/login';
-      }
-    }
-  };
-
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('adminToken');
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      };
-
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+      await axios.put(
+        `http://localhost:5000/api/orders/${orderId}/status`,
         { status: newStatus },
-        config
+        { 
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
-      fetchOrders(); // Refresh danh sách
+      await fetchOrders(); // Refresh list after update
     } catch (error) {
-      console.error('Update status error:', error);
+      console.error('Error updating order:', error);
       alert('Không thể cập nhật trạng thái đơn hàng');
     }
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+
   return (
     <div className="orders-page">
       <h2>Quản lý đơn hàng</h2>
-      <div className="orders-list">
-        {orders.map(order => (
-          <div key={order.order_id} className="order-card">
-            <div className="order-header">
-              <h3>Đơn hàng #{order.order_id}</h3>
-              <span className={`status ${order.status}`}>{order.status}</span>
-            </div>
-            <div className="order-info">
-              <p>Khách hàng: {order.customer_name}</p>
-              <p>SĐT: {order.customer_phone}</p>
-              <p>Tổng tiền: ${order.total_amount}</p>
-              <p>Thời gian: {new Date(order.created_at).toLocaleString()}</p>
-            </div>
-            <div className="order-items">
-              {order.items.map(item => (
-                <div key={item.product_id} className="order-item">
-                  <span>{item.quantity}x {item.product_name}</span>
-                  <span>${item.unit_price}</span>
-                </div>
-              ))}
-            </div>
-            <div className="order-actions">
-              <select 
-                value={order.status}
-                onChange={(e) => updateOrderStatus(order.order_id, e.target.value)}
-              >
-                <option value="pending">Chờ xác nhận</option>
-                <option value="confirmed">Đã xác nhận</option>
-                <option value="preparing">Đang chuẩn bị</option>
-                <option value="ready">Sẵn sàng</option>
-                <option value="completed">Hoàn thành</option>
-                <option value="cancelled">Đã hủy</option>
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
+      {orders.length === 0 ? (
+        <p>Không có đơn hàng nào</p>
+      ) : (
+        <table className="orders-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Khách hàng</th>
+              <th>Món</th>
+              <th>Tổng tiền</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map(order => (
+              <tr key={order.order_id}>
+                <td>#{order.order_id}</td>
+                <td>
+                  <div>{order.customer_name || 'Khách vãng lai'}</div>
+                  <div>{order.customer_phone || 'Không có SĐT'}</div>
+                </td>
+                <td>
+                  {order.details?.items?.map(item => (
+                    <div key={item.product_id}>
+                      {item.product_name} x {item.quantity} ({formatCurrency(item.unit_price)})
+                    </div>
+                  )) || 'Đang tải...'}
+                </td>
+                <td>{formatCurrency(order.total_amount)}</td>
+                <td>
+                  <div className={`status ${order.status}`}>
+                    {STATUS_LABELS[order.status] || order.status}
+                  </div>
+                  <div className={`payment-status ${order.payment_status}`}>
+                    {PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status}
+                  </div>
+                </td>
+                <td>
+                  <select 
+                    value={order.status}
+                    onChange={(e) => updateOrderStatus(order.order_id, e.target.value)}
+                    className={`status-select ${order.status}`}
+                  >
+                    {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

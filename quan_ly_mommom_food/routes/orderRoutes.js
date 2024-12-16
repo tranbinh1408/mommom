@@ -13,6 +13,6 @@ router.get('/', auth.verifyToken, orderController.getAllOrders);
 router.get('/:id', auth.verifyToken, orderController.getOrderById);
 
 // Route để cập nhật trạng thái đơn hàng (cần xác thực)
-router.put('/:id/status', auth.verifyToken, orderController.updateOrderStatus);
+router.put('/api/orders/:id/status', auth.verifyToken, orderController.updateOrderStatus);
 
 module.exports = router;
