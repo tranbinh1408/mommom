@@ -44,6 +44,7 @@ const orderController = {
               quantity,
               unit_price
             ) VALUES (?, ?, ?, ?)`,
+
             [
               orderId,
               Number(item.product_id),
@@ -151,7 +152,8 @@ const orderController = {
       const { id } = req.params;
       const { status } = req.body;
 
-      const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
+      // Update lại danh sách trạng thái hợp lệ
+      const validStatuses = ['created', 'confirmed', 'completed'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({
           success: false,

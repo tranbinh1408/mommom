@@ -85,37 +85,39 @@ const placeOrder = async () => {
   try {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     
+    // Check cart not empty
+    if (cart.length === 0) {
+      alert('Giỏ hàng trống!');
+      return;
+    }
+
     const orderData = {
       items: cart.map(item => ({
-        product_id: Number(item.product_id),
-        quantity: Number(item.quantity),
-        unit_price: Number(item.price)
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.price
       })),
-      total_amount: Number(calculateTotal(cart))
+      total_amount: calculateTotal(cart)
     };
 
-    console.log('Sending order data:', orderData);
+    console.log('Sending order:', orderData);
 
     const response = await axios.post(
-      'http://localhost:5000/api/orders/create', 
-      orderData,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+      'http://localhost:5000/api/orders/create',
+      orderData
     );
 
     if (response.data.success) {
+      // Clear cart only after successful order
       localStorage.removeItem('cart');
-      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      setCartItems([]);
       setShowCart(false);
       alert('Đặt hàng thành công!');
     }
+
   } catch (error) {
     console.error('Place order error:', error);
-    console.log('Error details:', error.response?.data);
-    alert('Có lỗi xảy ra khi đặt món. Vui lòng thử lại!');
+    alert('Có lỗi xảy ra khi đặt hàng!');
   }
 };
   const formatPrice = (price) => {

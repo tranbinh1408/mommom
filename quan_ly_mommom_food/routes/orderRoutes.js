@@ -12,7 +12,7 @@ router.get('/', auth.verifyToken, orderController.getAllOrders);
 // Route để lấy chi tiết đơn hàng (cần xác thực)
 router.get('/:id', auth.verifyToken, orderController.getOrderById);
 
-// Route để cập nhật trạng thái đơn hàng (cần xác thực)
-router.put('/api/orders/:id/status', auth.verifyToken, orderController.updateOrderStatus);
+// Đường dẫn phải khớp với frontend
+router.put('/:id/status', auth.verifyToken, orderController.updateOrderStatus); // Bỏ /api/orders/
 
 module.exports = router;
