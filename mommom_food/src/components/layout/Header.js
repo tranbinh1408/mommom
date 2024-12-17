@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Header.css';
 const Header = () => {
@@ -8,6 +8,10 @@ const Header = () => {
   const [showCart, setShowCart] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadCart = () => {
@@ -121,7 +125,17 @@ const placeOrder = async () => {
   }
 };
   const formatPrice = (price) => {
-    return parseFloat(price).toFixed(2) + 'đ';
+    return parseFloat(price).toFixed(3) + 'đ';
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchTerm.trim()) return;
+
+    // Navigate to menu with search term
+    navigate(`/menu?search=${encodeURIComponent(searchTerm)}`);
+    setSearchTerm('');
+    setShowSearchResults(false);
   };
 
   return (
@@ -180,10 +194,19 @@ const placeOrder = async () => {
                   </span>
                 )}
               </div>
-              <form className="form-inline">
-                <button className="btn my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i className="fa fa-search" aria-hidden="true"></i>
-                </button>
+              <form className="form-inline" onSubmit={handleSearch}>
+                <div className="search-container">
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Tìm món ăn..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <button className="btn nav_search-btn" type="submit">
+                    <i className="fa fa-search" aria-hidden="true"></i>
+                  </button>
+                </div>
               </form>
               <Link to="#" className="order_online">
                 Order Online
@@ -252,6 +275,26 @@ const placeOrder = async () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Add search results dropdown */}
+      {showSearchResults && searchResults.length > 0 && (
+        <div className="search-results">
+          {searchResults.map(product => (
+            <Link 
+              key={product.product_id}
+              to={`/menu?product=${product.product_id}`}
+              className="search-result-item"
+              onClick={() => setShowSearchResults(false)}
+            >
+              <img src={product.image_url} alt={product.name} />
+              <div>
+                <h6>{product.name}</h6>
+                <p>{formatPrice(product.price)}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </header>

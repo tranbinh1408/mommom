@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './styles/Menu.css';
 
@@ -10,6 +11,10 @@ const Menu = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchTerm = searchParams.get('search') || '';
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -28,6 +33,11 @@ const Menu = () => {
 
     fetchProducts();
   }, []);
+
+  // Set initial filtered products when products load
+  useEffect(() => {
+    setFilteredProducts(products);
+  }, [products]);
 
   const handleAddToCart = () => {
     if (!selectedProduct) return;
@@ -65,12 +75,35 @@ const Menu = () => {
 
   const formatPrice = (price) => {
     const numericPrice = parseFloat(price.replace('đ', ''));
-    return numericPrice.toFixed(2) + 'đ';
+    return numericPrice.toFixed(3) + 'đ';
   };
 
   const filterItems = (category) => {
+    // Clear search params
+    window.history.pushState({}, '', '/menu');
     setActiveFilter(category);
+
+    // Show all products or filter by category
+    if (category === '*') {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => 
+        product.category_id.toString() === category
+      );
+      setFilteredProducts(filtered);
+    }
   };
+
+  // Handle search separately
+  useEffect(() => {
+    if (searchTerm) {
+      const searchResults = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredProducts(searchResults);
+    }
+  }, [searchTerm, products]);
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
@@ -112,38 +145,33 @@ const Menu = () => {
 
           <div className="filters-content">
             <div className="row grid">
-              {products
-                .filter(product => 
-                  activeFilter === '*' || 
-                  product.category_id.toString() === activeFilter
-                )
-                .map(product => (
-                  <div key={product.product_id} className={`col-sm-6 col-lg-4 all ${product.category_name?.toLowerCase()}`}>
-                    <div className="box">
-                      <div>
-                        <div className="img-box">
-                          <img src={product.image_url} alt={product.name} />
-                        </div>
-                        <div className="detail-box">
-                          <h5>{product.name}</h5>
-                          <div className="options">
-                            <h6>{formatPrice(product.price)}</h6>
-                            <button 
-                              className="cart-btn"
-                              onClick={() => {
-                                setSelectedProduct(product);
-                                setQuantity(1);
-                                setShowModal(true);
-                              }}
-                            >
-                              <i className="fa fa-shopping-cart"></i>
-                            </button>
-                          </div>
+              {filteredProducts.map(product => (
+                <div key={product.product_id} className={`col-sm-6 col-lg-4 all ${product.category_name?.toLowerCase()}`}>
+                  <div className="box">
+                    <div>
+                      <div className="img-box">
+                        <img src={product.image_url} alt={product.name} />
+                      </div>
+                      <div className="detail-box">
+                        <h5>{product.name}</h5>
+                        <div className="options">
+                          <h6>{formatPrice(product.price)}</h6>
+                          <button 
+                            className="cart-btn"
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setQuantity(1);
+                              setShowModal(true);
+                            }}
+                          >
+                            <i className="fa fa-shopping-cart"></i>
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           </div>
         </div>
