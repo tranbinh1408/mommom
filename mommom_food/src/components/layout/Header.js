@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-
+import './Header.css';
 const Header = () => {
   const location = useLocation();
   const path = location.pathname;

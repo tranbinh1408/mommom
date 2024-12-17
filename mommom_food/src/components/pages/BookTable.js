@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import './styles/BookTable.css';
 const BookTable = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,7 +13,7 @@ const BookTable = () => {
     // Load Google Maps Script
     const loadGoogleMapsScript = () => {
       const googleMapScript = document.createElement('script');
-      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY`; // Thay YOUR_GOOGLE_MAPS_API_KEY bằng API key thật
+      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_ACTUAL_API_KEY`; // Thay YOUR_ACTUAL_API_KEY bằng key thật từ Google Cloud Console
       googleMapScript.async = true;
       googleMapScript.defer = true;
       window.document.body.appendChild(googleMapScript);

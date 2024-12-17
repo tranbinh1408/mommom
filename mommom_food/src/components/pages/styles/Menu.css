@@ -1,0 +1,225 @@
+/* Menu Section */
+.food_section {
+  padding: 45px 0;
+}
+
+/* Filters Menu */
+.food_section .filters_menu {
+  padding: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  list-style-type: none;
+  margin: 45px 0 20px 0;
+}
+
+.food_section .filters_menu li {
+  padding: 7px 25px;
+  cursor: pointer;
+  border-radius: 25px;
+  transition: all 0.3s;
+}
+
+.food_section .filters_menu li.active {
+  background-color: #222831;
+  color: #ffffff;
+}
+
+/* Food Box */
+.food_section .box {
+  position: relative;
+  margin-top: 25px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  color: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #f1f2f3 25px, #222831 25px);
+  transition: all 0.3s;
+}
+
+.food_section .box .img-box {
+  background: #f1f2f3;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  height: 215px;
+  border-radius: 0 0 0 45px;
+  margin: -1px;
+  padding: 25px;
+}
+
+.food_section .box .img-box img {
+  max-width: 100%;
+  max-height: 145px;
+  -webkit-transition: all .2s;
+  transition: all .2s;
+}
+
+.food_section .box:hover .img-box img {
+  -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+}
+
+.food_section .box .detail-box {
+  padding: 25px;
+}
+
+.food_section .box .detail-box h5 {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.food_section .box .detail-box p {
+  font-size: 15px;
+  margin: 10px 0;
+  color: #ffffff;
+}
+
+.food_section .box .detail-box h6 {
+  margin-top: 10px;
+  color: #ffffff;
+}
+
+/* Options */
+.food_section .box .options {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+.food_section .box .options a {
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  background: #ffbe33;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  transition: all 0.3s;
+}
+
+.food_section .box .options a:hover {
+  background: #e69c00;
+  transform: scale(1.1);
+}
+
+.food_section .box .options a svg {
+  width: 18px;
+  height: auto;
+  fill: #ffffff;
+}
+
+/* Quantity Controls */
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.quantity-selector button {
+  width: 35px;
+  height: 35px;
+  border: 2px solid #ffbe33;
+  background: #2d2d2d;
+  color: #fbfbfb;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.quantity-selector button:hover {
+  background: #ffbe33;
+  color: #ffffff;
+}
+
+.quantity {
+  font-size: 20px;
+  color: #ffbe33;
+  font-weight: bold;
+}
+
+/* Modal Styles */
+.modal-content {
+  background: #2d2d2d;
+  color: #f8f8f8;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header .btn-close {
+  display: none;
+}
+
+.modal-header,
+.modal-footer {
+  background-color: #222222;
+  border: none;
+}
+
+.modal-title {
+  color: #ffffff;
+}
+
+.product-name {
+  color: #ffffff;
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.product-price {
+  color: #ffbe33;
+  font-size: 16px;
+}
+
+.total-amount {
+  color: #ffbe33;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Button Styles */
+.food_section .btn-box {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin-top: 45px;
+}
+
+.food_section .btn-box a {
+  display: inline-block;
+  padding: 10px 55px;
+  background-color: #ffbe33;
+  color: #ffffff;
+  border-radius: 45px;
+  transition: all 0.3s;
+  border: none;
+}
+
+.food_section .btn-box a:hover {
+  background-color: #e69c00;
+}

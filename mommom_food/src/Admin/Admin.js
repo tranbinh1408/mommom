@@ -56,24 +56,27 @@ const [error, setError] = useState(null);
         api.get('/api/users')
       ]);
 
-      setProducts(productsRes.data.data);
-      setOrders(ordersRes.data.data);
-      setTables(tablesRes.data.data);
-      setUsers(usersRes.data.data);
-      setError(null);
-    }  catch (err) {
-      console.error('Fetch error:', err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem('adminToken');
-        setIsLoggedIn(false);
-        setError('Phiên đăng nhập hết hạn');
-      } else {
-        setError('Không thể tải dữ liệu');
+      if (productsRes.data.success) {
+        // Get products with existing category_name from backend
+        setProducts(productsRes.data.data);
       }
-      } finally {
-        setLoading(false);
+      if (ordersRes.data.success) {
+        setOrders(ordersRes.data.data);
       }
-    };
+      if (tablesRes.data.success) {
+        setTables(tablesRes.data.data);
+      }
+      if (usersRes.data.success) {
+        setUsers(usersRes.data.data);
+      }
+
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setError('Không thể tải dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Login handler
   const handleLogin = async (e) => {
@@ -108,8 +111,10 @@ const [error, setError] = useState(null);
   // Logout handler
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser'); // Also remove user data
     setIsLoggedIn(false);
     setCurrentView('dashboard');
+    navigate('/admin/login'); // Navigate to login page instead of dashboard
   };
 
   // Loading Spinner Component
@@ -319,13 +324,7 @@ const [error, setError] = useState(null);
         justifyContent: 'center',
         zIndex: 1000
       }}>
-        <div className="modal-content" style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          width: '500px',
-          maxWidth: '90%'
-        }}>
+        <div className="products-modal-content" >
           <h2>{editingProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">

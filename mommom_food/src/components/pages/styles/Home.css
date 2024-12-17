@@ -1,0 +1,74 @@
+/* Base styles & fonts */
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap");
+
+body {
+  font-family: "Open Sans", sans-serif;
+  color: #0c0c0c;
+  background-color: #ffffff;
+  overflow-x: hidden;
+}
+/* Dancing Script for headings */
+.heading_container h2,
+.slider_section h1,
+.offer_section h5,
+.offer_section h6 {
+  font-family: 'Dancing Script', cursive;
+  font-weight: 600;
+}
+
+/* Layout classes */
+.layout_padding {
+  padding: 90px 0;
+}
+
+.layout_padding2 {
+  padding: 75px 0;
+}
+
+.layout_padding2-top {
+  padding-top: 75px;
+}
+
+.layout_padding2-bottom {
+  padding-bottom: 75px;
+}
+
+.layout_padding-top {
+  padding-top: 90px;
+}
+
+.layout_padding-bottom {
+  padding-bottom: 90px;
+}
+
+/* Container styles */
+.container-fluid {
+  padding-right: 25px;
+  padding-left: 25px;
+}
+
+/* Heading styles */
+.heading_container {
+  margin-bottom: 30px;
+}
+
+.heading_container h2 {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.5rem;
+}
+
+/* Button styles */
+.custom_dark-btn {
+  padding: 10px 28px;
+  color: #ffffff;
+  background-color: #000000;
+  transition: all 0.3s;
+  border: none;
+  border-radius: 5px;
+}
+
+.custom_dark-btn:hover {
+  color: #000000;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+}

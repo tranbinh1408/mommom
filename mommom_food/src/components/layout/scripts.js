@@ -1,3 +1,4 @@
+import './scripts.css';
 export const initializeScripts = () => {
   if (typeof window !== 'undefined') {
     try {

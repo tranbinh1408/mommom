@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './styles/Menu.css';
 
 const Menu = () => {
   const [activeFilter, setActiveFilter] = useState('*');
@@ -67,6 +68,10 @@ const Menu = () => {
     return numericPrice.toFixed(2) + 'đ';
   };
 
+  const filterItems = (category) => {
+    setActiveFilter(category);
+  };
+
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -75,45 +80,70 @@ const Menu = () => {
       <section className="food_section layout_padding-bottom">
         <div className="container">
           <div className="heading_container heading_center">
-            <h2>Thực đơn</h2>
+            <h2 style={{ textAlign: 'center' }}>Thực đơn</h2>
           </div>
 
           <ul className="filters_menu">
-            <li className="active" data-filter="*">Tất cả</li>
-            <li data-filter=".burger">Phở/Bún</li>
-            <li data-filter=".pizza">Cơm</li>
-            <li data-filter=".pasta">Đồ uống</li>
+            <li 
+              className={activeFilter === '*' ? 'active' : ''} 
+              onClick={() => filterItems('*')}
+            >
+              Tất cả
+            </li>
+            <li 
+              className={activeFilter === '1' ? 'active' : ''} 
+              onClick={() => filterItems('1')}
+            >
+              Phở/Bún
+            </li>
+            <li 
+              className={activeFilter === '2' ? 'active' : ''} 
+              onClick={() => filterItems('2')}
+            >
+              Cơm
+            </li>
+            <li 
+              className={activeFilter === '3' ? 'active' : ''} 
+              onClick={() => filterItems('3')}
+            >
+              Đồ uống
+            </li>
           </ul>
 
           <div className="filters-content">
             <div className="row grid">
-              {products.map(product => (
-                <div key={product.product_id} className={`col-sm-6 col-lg-4 all ${product.category_name?.toLowerCase()}`}>
-                  <div className="box">
-                    <div>
-                      <div className="img-box">
-                        <img src={product.image_url} alt={product.name} />
-                      </div>
-                      <div className="detail-box">
-                        <h5>{product.name}</h5>
-                        <div className="options">
-                          <h6>{formatPrice(product.price)}</h6>
-                          <button 
-                            className="cart-btn"
-                            onClick={() => {
-                              setSelectedProduct(product);
-                              setQuantity(1);
-                              setShowModal(true);
-                            }}
-                          >
-                            <i className="fa fa-shopping-cart"></i>
-                          </button>
+              {products
+                .filter(product => 
+                  activeFilter === '*' || 
+                  product.category_id.toString() === activeFilter
+                )
+                .map(product => (
+                  <div key={product.product_id} className={`col-sm-6 col-lg-4 all ${product.category_name?.toLowerCase()}`}>
+                    <div className="box">
+                      <div>
+                        <div className="img-box">
+                          <img src={product.image_url} alt={product.name} />
+                        </div>
+                        <div className="detail-box">
+                          <h5>{product.name}</h5>
+                          <div className="options">
+                            <h6>{formatPrice(product.price)}</h6>
+                            <button 
+                              className="cart-btn"
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setQuantity(1);
+                                setShowModal(true);
+                              }}
+                            >
+                              <i className="fa fa-shopping-cart"></i>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
