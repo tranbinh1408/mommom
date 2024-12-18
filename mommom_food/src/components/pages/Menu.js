@@ -73,6 +73,36 @@ const Menu = () => {
     }
   };
 
+  const handleTakeawayOrder = () => {
+    if (!selectedProduct) return;
+    
+    try {
+      const takeawayItem = {
+        product_id: selectedProduct.product_id,
+        name: selectedProduct.name,
+        image_url: selectedProduct.image_url,
+        price: parseFloat(selectedProduct.price),
+        quantity: quantity,
+        isTakeaway: true
+      };
+  
+      const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cartArray = Array.isArray(existingCart) ? existingCart : [];
+      cartArray.push(takeawayItem);
+      
+      localStorage.setItem('cart', JSON.stringify(cartArray));
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+  
+      setShowModal(false);
+      setSelectedProduct(null);
+      setQuantity(1);
+      alert('Đã thêm vào đơn hàng mang về!');
+    } catch (error) {
+      console.error('Error adding takeaway order:', error);
+      alert('Có lỗi xảy ra');
+    }
+  };
+
   const formatPrice = (price) => {
     const numericPrice = parseFloat(price.replace('đ', ''));
     return numericPrice.toFixed(3) + 'đ';
@@ -218,12 +248,9 @@ const Menu = () => {
               </div>
 
               <div className="modal-footer">
-                <button onClick={() => {
-                  setShowModal(false);
-                  setSelectedProduct(null);
-                  setQuantity(1);
-                }}>Đóng</button>
-                <button onClick={handleAddToCart}>Thêm vào giỏ</button>
+                <button onClick={handleAddToCart}>Đặt tại bàn</button>
+                <button onClick={handleTakeawayOrder}>Đặt mang về</button>
+                <button onClick={() => setShowModal(false)}>Đóng</button>
               </div>
             </div>
           </div>

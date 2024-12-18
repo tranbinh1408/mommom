@@ -223,3 +223,47 @@
 .food_section .btn-box a:hover {
   background-color: #e69c00;
 }
+/* Nút đặt onl */
+.modal-footer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px 0;
+  border-top: 1px solid #eee;
+  gap: 12px;
+}
+
+/* Button base styles */
+.modal-footer button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 500;
+  border: none;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+/* Order at table button */
+.modal-footer button:first-child {
+  background: #ffc107;
+  color: #000;
+}
+
+/* Take away button */
+.modal-footer button:nth-child(2) {
+  background: #28a745;
+  color: white;
+}
+
+/* Close button */
+.modal-footer button:last-child {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #ddd;
+  margin-left: auto;
+}
+
+.modal-footer button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}

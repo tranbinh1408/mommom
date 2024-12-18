@@ -1,82 +1,85 @@
 const db = require('../config/database');
 
-const orderController = {
-  // Tạo đơn hàng mới
-  createOrder: async (req, res) => {
-    try {
-      const { items, total_amount } = req.body;
-      console.log('Received order data:', { items, total_amount });
+const createOrder = async (req, res) => {
+  console.log('Received order data:', req.body); // Debug log
+  try {
+    const { items, total_amount } = req.body;
+    console.log('Received order data:', { items, total_amount });
 
-      // Validate items array
-      if (!Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'Giỏ hàng không hợp lệ'
-        });
-      }
-
-      // Start transaction
-      const connection = await db.getConnection();
-      await connection.beginTransaction();
-
-      try {
-        // Create order
-        const [orderResult] = await connection.query(
-          `INSERT INTO Orders (
-            total_amount,
-            status,
-            payment_method,
-            payment_status,
-            created_at,
-            updated_at
-          ) VALUES (?, 'created', 'cash', 'pending', NOW(), NOW())`,
-          [Number(total_amount) || 0]
-        );
-
-        const orderId = orderResult.insertId;
-
-        // Insert order details
-        for (const item of items) {
-          await connection.query(
-            `INSERT INTO OrderDetails (
-              order_id,
-              product_id,
-              quantity,
-              unit_price
-            ) VALUES (?, ?, ?, ?)`,
-            [
-              orderId,
-              Number(item.product_id),
-              Number(item.quantity),
-              Number(item.unit_price)
-            ]
-          );
-        }
-
-        await connection.commit();
-
-        res.status(201).json({
-          success: true,
-          message: 'Đặt món thành công',
-          data: { orderId }
-        });
-
-      } catch (error) {
-        await connection.rollback();
-        throw error;
-      } finally {
-        connection.release();
-      }
-
-    } catch (error) {
-      console.error('Create order error:', error);
-      res.status(500).json({
+    // Validate items array
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
         success: false,
-        message: 'Lỗi khi tạo đơn hàng',
-        error: error.message
+        message: 'Giỏ hàng không hợp lệ'
       });
     }
-  },
+
+    // Start transaction
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Create order
+      const [orderResult] = await connection.query(
+        `INSERT INTO Orders (
+          total_amount,
+          status,
+          payment_method,
+          payment_status,
+          created_at,
+          updated_at
+        ) VALUES (?, 'created', 'cash', 'pending', NOW(), NOW())`,
+        [Number(total_amount) || 0]
+      );
+
+      const orderId = orderResult.insertId;
+
+      // Insert order details
+      for (const item of items) {
+        await connection.query(
+          `INSERT INTO OrderDetails (
+            order_id,
+            product_id,
+            quantity,
+            unit_price
+          ) VALUES (?, ?, ?, ?)`,
+          [
+            orderId,
+            Number(item.product_id),
+            Number(item.quantity),
+            Number(item.unit_price)
+          ]
+        );
+      }
+
+      await connection.commit();
+
+      res.status(201).json({
+        success: true,
+        message: 'Đặt món thành công',
+        data: { orderId }
+      });
+
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+  } catch (error) {
+    console.error('Create order error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi tạo đơn hàng',
+      error: error.message
+    });
+  }
+};
+
+const orderController = {
+  // Tạo đơn hàng mới
+  createOrder,
 
   // Lấy danh sách đơn hàng
   getAllOrders: async (req, res) => {

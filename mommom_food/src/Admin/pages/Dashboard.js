@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const Dashboard = ({ products, orders, tables, users }) => {
   return (
@@ -24,6 +25,13 @@ const Dashboard = ({ products, orders, tables, users }) => {
       </div>
     </div>
   );
+};
+
+Dashboard.propTypes = {
+  products: PropTypes.array.isRequired,
+  orders: PropTypes.array.isRequired,
+  tables: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired
 };
 
 export default Dashboard;

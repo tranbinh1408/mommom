@@ -1,21 +1,34 @@
+const db = require('../config/database');
 const Category = require('../models/categoryModel');
 
 const categoryController = {
   getAllCategories: async (req, res) => {
-    console.log('GET /api/categories endpoint hit');
     try {
-      const categories = await Category.findAll();
-      console.log('Categories fetched:', categories);
+      // Add debug log
+      console.log('Getting categories...');
+      
+      // Query categories with all fields
+      const [categories] = await db.query(`
+        SELECT 
+          category_id,
+          name,
+          description,
+          is_active
+        FROM Categories 
+        WHERE is_active = 1
+      `);
+      
+      console.log('Found categories:', categories);
+
       res.json({
         success: true,
         data: categories
       });
-    } catch (error) {
-      console.error('Error in getAllCategories:', error);
+    } catch (err) {
+      console.error('Error getting categories:', err);
       res.status(500).json({
         success: false,
-        message: 'Lỗi khi lấy danh sách danh mục',
-        error: error.message
+        message: 'Lỗi khi lấy danh mục'
       });
     }
   },

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Admin.css';
 import Orders from './pages/Orders'; // Thêm dòng này
+import Products from './pages/Products';
+import Dashboard from './pages/Dashboard';
 
 const Admin = () => {
 const navigate = useNavigate();
@@ -19,7 +21,7 @@ const [error, setError] = useState(null);
 
   // Cấu hình axios
   const api = axios.create({
-    baseURL: 'http://localhost:5000',
+    baseURL: 'http://localhost:5000', // Remove /api from here
     headers: {
       'Content-Type': 'application/json'
     },
@@ -49,29 +51,25 @@ const [error, setError] = useState(null);
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [productsRes, ordersRes, tablesRes, usersRes] = await Promise.all([
+      const [
+        productsRes,
+        ordersRes, 
+        tablesRes,
+        usersRes
+      ] = await Promise.all([
         api.get('/api/products'),
         api.get('/api/orders'),
-        api.get('/api/tables'),
+        api.get('/api/tables'), 
         api.get('/api/users')
       ]);
 
-      if (productsRes.data.success) {
-        // Get products with existing category_name from backend
-        setProducts(productsRes.data.data);
-      }
-      if (ordersRes.data.success) {
-        setOrders(ordersRes.data.data);
-      }
-      if (tablesRes.data.success) {
-        setTables(tablesRes.data.data);
-      }
-      if (usersRes.data.success) {
-        setUsers(usersRes.data.data);
-      }
+      if (productsRes.data.success) setProducts(productsRes.data.data);
+      if (ordersRes.data.success) setOrders(ordersRes.data.data);
+      if (tablesRes.data.success) setTables(tablesRes.data.data);
+      if (usersRes.data.success) setUsers(usersRes.data.data);
 
-    } catch (error) {
-      console.error('Fetch error:', error);
+    } catch (err) {
+      console.error('Fetch error:', err);
       setError('Không thể tải dữ liệu');
     } finally {
       setLoading(false);
@@ -166,296 +164,6 @@ const [error, setError] = useState(null);
       </div>
     );
   }
-
-  // Dashboard Component
-  const Dashboard = () => (
-    <div className="dashboard-container">
-      <h2>Dashboard</h2>
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <h3>Products</h3>
-          <p>{products.length}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Orders</h3>
-          <p>{orders.length}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Tables</h3>
-          <p>{tables.length}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Users</h3>
-          <p>{users.length}</p>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Products Component
-  const Products = () => {
-    const [showModal, setShowModal] = useState(false);
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [formData, setFormData] = useState({
-      name: '',
-      price: '',
-      category_id: '',
-      description: '',
-      image_url: '',
-      is_available: true
-    });
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-      const fetchCategories = async () => {
-        setLoading(true);
-        try {
-          const response = await api.get('/api/categories');
-          console.log('Categories response:', response.data);
-          if (response.data.success) {
-            setCategories(response.data.data);
-          }
-        } catch (err) {
-          console.error('Error fetching categories:', err);
-          setError('Không thể tải danh mục sản phẩm');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchCategories();
-    }, []);
-
-    // Thêm hàm handleDeleteProduct
-    const handleDeleteProduct = async (productId) => {
-      if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-        try {
-          await api.delete(`/api/products/${productId}`);
-          fetchData(); // Refresh danh sách sau khi xóa
-        } catch (err) {
-          setError(err.response?.data?.message || 'Không thể xóa sản phẩm');
-        }
-      }
-    };
-
-    // Reset form
-    const resetForm = () => {
-      setFormData({
-        name: '',
-        price: '',
-        category_id: '',
-        description: '',
-        image_url: '',
-        is_available: true
-      });
-      setEditingProduct(null);
-    };
-
-    // Mở modal thêm mới
-    const handleAddClick = () => {
-      resetForm();
-      setShowModal(true);
-    };
-
-    // Mở modal chỉnh sửa
-    const handleEditClick = (product) => {
-      setFormData({
-        name: product.name,
-        price: product.price,
-        category_id: product.category_id,
-        description: product.description,
-        image_url: product.image_url,
-        is_available: product.is_available
-      });
-      setEditingProduct(product);
-      setShowModal(true);
-    };
-
-    // Xử lý submit form
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      try {
-        // Validate dữ liệu trước khi gửi
-        if (!formData.name || !formData.price || !formData.category_id) {
-          setError('Vui lòng điền đầy đủ thông tin bắt buộc');
-          return;
-        }
-
-        const productData = {
-          name: formData.name,
-          description: formData.description || null,
-          price: Number(formData.price),
-          category_id: Number(formData.category_id),
-          image_url: formData.image_url || null,
-          is_available: true
-        };
-
-        console.log('Sending product data:', productData);
-
-        if (editingProduct) {
-          await api.put(`/api/products/${editingProduct.product_id}`, productData);
-        } else {
-          await api.post('/api/products', productData);
-        }
-        
-        fetchData();
-        setShowModal(false);
-        resetForm();
-      } catch (err) {
-        console.error('Error submitting form:', err);
-        console.error('Error response:', err.response?.data);
-        setError(err.response?.data?.message || 'Có lỗi xảy ra');
-      }
-    };
-
-    // Modal form
-    const ProductModal = () => (
-      <div className="modal" style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000
-      }}>
-        <div className="products-modal-content" >
-          <h2>{editingProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Tên sản phẩm: *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Giá: *</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={(e) => setFormData({...formData, price: e.target.value})}
-                required
-                min="0"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Danh mục: *</label>
-              <select
-                name="category_id"
-                value={formData.category_id}
-                onChange={(e) => setFormData({...formData, category_id: e.target.value})}
-                required
-              >
-                <option value="">Chọn danh mục</option>
-                {categories.map(category => (
-                  <option key={category.category_id} value={category.category_id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Mô tả:</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>URL Hình ảnh:</label>
-              <input
-                type="text"
-                value={formData.image_url}
-                onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={formData.is_available}
-                  onChange={(e) => setFormData({...formData, is_available: e.target.checked})}
-                />
-                Còn hàng
-              </label>
-            </div>
-
-            <div className="modal-actions" style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '10px',
-              marginTop: '20px'
-            }}>
-              <button type="button" onClick={() => setShowModal(false)}>
-                Hủy
-              </button>
-              <button type="submit">
-                {editingProduct ? 'Cập nhật' : 'Thêm mới'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-
-    return (
-      <div className="products-container">
-        <h2>Quản lý sản phẩm</h2>
-        <button className="add-btn" onClick={handleAddClick}>
-          Thêm sản phẩm mới
-        </button>
-        <table>
-          <thead>
-            <tr>
-              <th>Hình ảnh</th>
-              <th>Tên</th>
-              <th>Giá</th>
-              <th>Danh mục</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(product => (
-              <tr key={product.product_id}>
-                <td><img src={product.image_url} alt={product.name} style={{width: '50px', height: '50px', objectFit: 'cover'}} /></td>
-                <td>{product.name}</td>
-                <td>{product.price.toLocaleString('vi-VN')}đ</td>
-                {/* Fix category display by using category_name from joined query */}
-                <td>{product.category_name || 'Chưa phân loại'}</td>
-                <td>{product.is_available ? 'Còn hàng' : 'Hết hàng'}</td>
-                <td>
-                  <button className="edit-btn" onClick={() => handleEditClick(product)}>
-                    Sửa
-                  </button>
-                  <button className="delete-btn" onClick={() => handleDeleteProduct(product.product_id)}>
-                    Xóa
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {showModal && <ProductModal />}
-      </div>
-    );
-  };
 
   // Tables Component
   const Tables = () => {
@@ -596,8 +304,19 @@ const [error, setError] = useState(null);
         </header>
 
         <main className="admin-main">
-          {currentView === 'dashboard' && <Dashboard />}
-          {currentView === 'products' && <Products />}
+          {currentView === 'dashboard' && 
+            <Dashboard 
+              products={products}
+              orders={orders}
+              tables={tables}
+              users={users}
+            />
+          }
+          {currentView === 'products' && <Products 
+            products={products}
+            api={api}
+            fetchData={fetchData}
+          />}
           {currentView === 'orders' && <Orders 
             api={api} 
             orders={orders} 

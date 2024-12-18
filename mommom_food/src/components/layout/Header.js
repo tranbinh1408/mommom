@@ -13,6 +13,14 @@ const Header = () => {
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
 
+  // Add new state
+  const [showTakeaway, setShowTakeaway] = useState(false);
+  const [takeawayForm, setTakeawayForm] = useState({
+    customerName: '',
+    phone: '',
+    address: ''
+  });
+
   useEffect(() => {
     const loadCart = () => {
       const savedCart = localStorage.getItem('cart');
@@ -124,6 +132,55 @@ const placeOrder = async () => {
     alert('Có lỗi xảy ra khi đặt hàng!');
   }
 };
+
+// Add handleTakeawaySubmit function
+const handleTakeawaySubmit = async () => {
+  try {
+    const takeawayItems = cartItems.filter(item => item.isTakeaway);
+    
+    // Match database structure exactly
+    const orderData = {
+      // Main order info
+      items: takeawayItems.map(item => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_price: item.price
+      })),
+      // Customer info
+      customer_name: takeawayForm.customerName,
+      customer_phone: takeawayForm.phone,
+      customer_email: '',
+      address: takeawayForm.address,
+      total_amount: calculateTotal(takeawayItems),
+      status: 'created',
+      type: 'takeaway'
+    };
+
+    console.log('Sending order data:', orderData);
+
+    const response = await axios.post(
+      'http://localhost:5000/api/orders/create',
+      orderData
+    );
+
+    if (response.data.success) {
+      const newCart = cartItems.filter(item => !item.isTakeaway);
+      localStorage.setItem('cart', JSON.stringify(newCart));
+      setCartItems(newCart);
+      setShowTakeaway(false);
+      setTakeawayForm({
+        customerName: '',
+        phone: '',
+        address: ''
+      });
+      alert('Đặt hàng thành công!');
+    }
+  } catch (err) {
+    console.error('Error data:', err.response?.data);
+    alert('Đặt hàng thất bại');
+  }
+};
+
   const formatPrice = (price) => {
     return parseFloat(price).toFixed(3) + 'đ';
   };
@@ -208,8 +265,8 @@ const placeOrder = async () => {
                   </button>
                 </div>
               </form>
-              <Link to="#" className="order_online">
-                Order Online
+              <Link to="#" className="order_online" onClick={() => setShowTakeaway(true)}>
+                Đặt mang về ({cartItems.filter(item => item.isTakeaway).length})
               </Link>
             </div>
           </div>
@@ -272,6 +329,90 @@ const placeOrder = async () => {
                 disabled={!Array.isArray(cartItems) || cartItems.length === 0}
               >
                 Đặt hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add takeaway modal */}
+      {showTakeaway && (
+        <div className="cart-modal">
+          <div className="cart-modal-content">
+            <div className="cart-modal-header">
+              <h5>Đơn hàng mang về</h5>
+              <button className="close-btn" onClick={() => setShowTakeaway(false)}>×</button>
+            </div>
+            
+            <div className="cart-modal-body">
+              {/* Show takeaway items */}
+              {cartItems.filter(item => item.isTakeaway).map(item => (
+                <div key={item.product_id} className="cart-item">
+                  <img src={item.image_url} alt={item.name} />
+                  <div className="cart-item-info">
+                    <h6>{item.name}</h6>
+                    <p className="price">{formatPrice(item.price)}</p>
+                    <div className="quantity">SL: {item.quantity}</div>
+                  </div>
+                  <button className="remove-btn" onClick={() => removeFromCart(item.product_id)}>×</button>
+                </div>
+              ))}
+              
+              {/* Add delivery form */}
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                handleTakeawaySubmit();
+              }}>
+                <div className="form-group">
+                  <label>Họ tên:</label>
+                  <input
+                    type="text"
+                    required
+                    value={takeawayForm.customerName}
+                    onChange={(e) => setTakeawayForm({
+                      ...takeawayForm,
+                      customerName: e.target.value
+                    })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Số điện thoại:</label>
+                  <input
+                    type="tel"
+                    required
+                    pattern="[0-9]{10}"
+                    value={takeawayForm.phone}
+                    onChange={(e) => setTakeawayForm({
+                      ...takeawayForm,
+                      phone: e.target.value
+                    })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Địa chỉ:</label>
+                  <textarea
+                    required
+                    value={takeawayForm.address}
+                    onChange={(e) => setTakeawayForm({
+                      ...takeawayForm,
+                      address: e.target.value
+                    })}
+                  />
+                </div>
+              </form>
+            </div>
+            
+            <div className="cart-modal-footer">
+              <div className="cart-total">
+                <h6>Tổng cộng:</h6>
+                <p>{formatPrice(calculateTotal(cartItems.filter(item => item.isTakeaway)))}</p>
+              </div>
+              <button 
+                className="checkout-btn"
+                onClick={handleTakeawaySubmit}
+                disabled={!cartItems.some(item => item.isTakeaway)}
+              >
+                Xác nhận đặt hàng
               </button>
             </div>
           </div>
