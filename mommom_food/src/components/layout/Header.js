@@ -232,11 +232,11 @@ const handleTakeawaySubmit = async () => {
                   Thêm {path === '/about' && <span className="sr-only">(current)</span>}
                 </Link>
               </li>
-              <li className={`nav-item ${path === '/book' ? 'active' : ''}`}>
+              {/* <li className={`nav-item ${path === '/book' ? 'active' : ''}`}>
                 <Link className="nav-link" to="/book">
                   Đặt bàn {path === '/book' && <span className="sr-only">(current)</span>}
                 </Link>
-              </li>
+              </li> */}
             </ul>
             <div className="user_option">
               {/* Thay đổi thành Link để chuyển đến trang đăng nhập admin */}

@@ -7,7 +7,7 @@ import Footer from './components/layout/Footer';
 import Home from './components/pages/Home';
 import About from './components/pages/About';
 import Menu from './components/pages/Menu';
-import BookTable from './components/pages/BookTable';
+// import BookTable from './components/pages/BookTable';
 import Admin from './Admin/Admin'; // Updated import path
 import AdminLogin from './components/pages/AdminLogin'; // Import AdminLogin component
 
@@ -28,7 +28,7 @@ const App = () => {
         <Route path="/" element={<><Header /><Home /><Footer /></>} />
         <Route path="/about" element={<><Header /><About /><Footer /></>} />
         <Route path="/menu" element={<><Header /><Menu /><Footer /></>} />
-        <Route path="/book" element={<><Header /><BookTable /><Footer /></>} />
+        {/* <Route path="/book" element={<><Header /><BookTable /><Footer /></>} /> */}
         
         {/* Admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

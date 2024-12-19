@@ -1,6 +1,6 @@
 import React from 'react';
 import Menu from './Menu';
-import BookTable from './BookTable';
+// import BookTable from './BookTable';
 import About from './About';
 import './styles/Home.css';
 // import Header from '../layout/Header';
@@ -19,7 +19,7 @@ const Home = () => {
       <Menu />
 
       {/* Book Table Section */}
-      <BookTable />
+      {/* <BookTable /> */}
 
       {/* Footer */}
       {/* <Footer /> */}
