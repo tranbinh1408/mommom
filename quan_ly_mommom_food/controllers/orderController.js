@@ -43,6 +43,7 @@ const createOrder = async (req, res) => {
             quantity,
             unit_price
           ) VALUES (?, ?, ?, ?)`,
+
           [
             orderId,
             Number(item.product_id),
@@ -73,6 +74,54 @@ const createOrder = async (req, res) => {
       success: false,
       message: 'Lỗi khi tạo đơn hàng',
       error: error.message
+    });
+  }
+};
+
+const getOrderDetails = async (req, res) => {
+  const { orderId } = req.params;
+  try {
+    // Updated query to include product name
+    const [orderDetails] = await db.query(
+      `SELECT 
+        o.*,
+        od.quantity,
+        od.unit_price,
+        p.name as product_name,
+        p.product_id
+      FROM Orders o
+      JOIN OrderDetails od ON o.order_id = od.order_id
+      JOIN Products p ON od.product_id = p.product_id
+      WHERE o.order_id = ?`,
+      [orderId]
+    );
+
+    if (orderDetails && orderDetails.length > 0) {
+      const order = {
+        ...orderDetails[0],
+        order_details: orderDetails.map(item => ({
+          product_id: item.product_id,
+          product_name: item.product_name, // Include product name
+          quantity: item.quantity,
+          unit_price: item.unit_price
+        }))
+      };
+
+      res.json({
+        success: true,
+        data: order
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy đơn hàng'
+      });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi lấy chi tiết đơn hàng'
     });
   }
 };
@@ -246,7 +295,10 @@ const orderController = {
         connection.release();
       }
     }
-  }
+  },
+
+  // Lấy chi tiết đơn hàng
+  getOrderDetails
 };
 
 module.exports = orderController;

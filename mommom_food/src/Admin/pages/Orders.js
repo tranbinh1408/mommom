@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
 
-const Orders = ({ api, fetchData }) => {
+const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,9 +38,70 @@ const Orders = ({ api, fetchData }) => {
     }
   };
 
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      // Update endpoint to get product details
+      const response = await axios.get(
+        `http://localhost:5000/api/orders/${orderId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log('API Response:', response.data);
+
+      const orderData = response.data.data;
+      if (orderData && Array.isArray(orderData.order_details)) {
+        // Transform order details with product info
+        const items = await Promise.all(
+          orderData.order_details.map(async (detail) => {
+            // Get product info
+            const productResponse = await axios.get(
+              `http://localhost:5000/api/products/${detail.product_id}`,
+              {
+                headers: { 'Authorization': `Bearer ${token}` }
+              }
+            );
+            
+            return {
+              name: productResponse.data.data.name,
+              quantity: detail.quantity,
+              unit_price: detail.unit_price
+            };
+          })
+        );
+
+        console.log('Mapped items with names:', items);
+
+        return {
+          ...orderData,
+          items: items
+        };
+      }
+      return orderData;
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      return null;
+    }
+  };
+
   const openDetailModal = async (order) => {
-    setSelectedOrderDetail(order);
-    setShowDetailModal(true);
+    try {
+      const details = await fetchOrderDetails(order.order_id);
+      if (details) {
+        setSelectedOrderDetail({
+          ...order,
+          items: details.items || []
+        });
+        setShowDetailModal(true);
+      }
+    } catch (err) {
+      console.error('Error opening detail modal:', err);
+      alert('Không thể tải chi tiết đơn hàng');
+    }
   };
 
   const updateOrderStatus = async (orderId, newStatus) => {
@@ -217,11 +277,6 @@ const Orders = ({ api, fetchData }) => {
       )}
     </div>
   );
-};
-
-Orders.propTypes = {
-  api: PropTypes.object.isRequired,
-  fetchData: PropTypes.func.isRequired
 };
 
 export default Orders;

@@ -38,7 +38,7 @@ CREATE TABLE Orders (
     order_id INT PRIMARY KEY AUTO_INCREMENT,     -- ID định danh duy nhất
     customer_name VARCHAR(100) NULL,         -- Tên khách hàng
     customer_phone VARCHAR(15),                  -- SĐT khách hàng
-    customer_email VARCHAR(100),                 -- Email khách hàng
+    COLUMN address VARCHAR(255) COMMENT 'Địa chỉ đặt hàng'
     table_id INT,                                -- Liên kết với bảng Tables
     staff_id INT,                                -- Liên kết với bảng Users (nhân viên xử lý)
     total_amount DECIMAL(10,3) NOT NULL,         -- Tổng tiền
