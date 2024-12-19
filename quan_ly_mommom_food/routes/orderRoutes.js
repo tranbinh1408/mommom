@@ -17,4 +17,6 @@ router.put('/:id/status', auth.verifyToken, orderController.updateOrderStatus); 
 
 router.delete('/:id', auth.verifyToken, orderController.deleteOrder);
 
+router.put('/:id', auth.verifyToken, orderController.updateOrder);
+
 module.exports = router;

@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const Order = require('../models/orderModel');
 
 const createOrder = async (req, res) => {
   console.log('Received order data:', req.body); // Debug log
@@ -81,13 +82,12 @@ const createOrder = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   const { orderId } = req.params;
   try {
-    // Updated query to include product name
     const [orderDetails] = await db.query(
       `SELECT 
         o.*,
         od.quantity,
         od.unit_price,
-        p.name as product_name,
+        p.name,
         p.product_id
       FROM Orders o
       JOIN OrderDetails od ON o.order_id = od.order_id
@@ -97,11 +97,14 @@ const getOrderDetails = async (req, res) => {
     );
 
     if (orderDetails && orderDetails.length > 0) {
+      // Format lại data trả về
       const order = {
-        ...orderDetails[0],
-        order_details: orderDetails.map(item => ({
+        order_id: orderDetails[0].order_id,
+        status: orderDetails[0].status,
+        total_amount: orderDetails[0].total_amount,
+        items: orderDetails.map(item => ({
           product_id: item.product_id,
-          product_name: item.product_name, // Include product name
+          name: item.name,
           quantity: item.quantity,
           unit_price: item.unit_price
         }))
@@ -134,15 +137,31 @@ const orderController = {
   getAllOrders: async (req, res) => {
     try {
       const [orders] = await db.query(`
-        SELECT o.*, t.table_number 
+        SELECT 
+          o.*,
+          t.table_number,
+          GROUP_CONCAT(p.name) as product_names,
+          GROUP_CONCAT(od.quantity) as quantities
         FROM Orders o
         LEFT JOIN Tables t ON o.table_id = t.table_id
+        LEFT JOIN OrderDetails od ON o.order_id = od.order_id
+        LEFT JOIN Products p ON od.product_id = p.product_id
+        GROUP BY o.order_id
         ORDER BY o.created_at DESC
       `);
 
+      // Format data
+      const formattedOrders = orders.map(order => ({
+        ...order,
+        items: order.product_names?.split(',').map((name, index) => ({
+          name,
+          quantity: parseInt(order.quantities?.split(',')[index] || 0)
+        })) || []
+      }));
+
       res.json({
         success: true,
-        data: orders
+        data: formattedOrders
       });
     } catch (error) {
       console.error('Get orders error:', error);
@@ -307,7 +326,78 @@ const orderController = {
   },
 
   // Lấy chi tiết đơn hàng
-  getOrderDetails
+  getOrderDetails,
+
+  // Thêm vào orderController
+  updateOrder: async (req, res) => {
+    const connection = await db.getConnection();
+    try {
+      const { id } = req.params;
+      const { items } = req.body;
+
+      // Validate items array
+      if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Danh sách món không hợp lệ'
+        });
+      }
+
+      await connection.beginTransaction();
+
+      // Xóa chi tiết đơn hàng cũ
+      await connection.query(
+        'DELETE FROM OrderDetails WHERE order_id = ?',
+        [id]
+      );
+
+      // Thêm chi tiết đơn hàng mới
+      let total_amount = 0;
+      for (const item of items) {
+        // Lấy giá của sản phẩm từ bảng Products
+        const [product] = await connection.query(
+          'SELECT price FROM Products WHERE product_id = ?',
+          [item.product_id]
+        );
+
+        if (product && product[0]) {
+          const unit_price = product[0].price;
+          await connection.query(
+            `INSERT INTO OrderDetails (
+              order_id, 
+              product_id, 
+              quantity, 
+              unit_price
+            ) VALUES (?, ?, ?, ?)`,
+            [id, item.product_id, item.quantity, unit_price]
+          );
+          total_amount += item.quantity * unit_price;
+        }
+      }
+
+      // Chỉ cập nhật total_amount, giữ nguyên thông tin khách hàng
+      await connection.query(
+        'UPDATE Orders SET total_amount = ?, updated_at = NOW() WHERE order_id = ?',
+        [total_amount, id]
+      );
+
+      await connection.commit();
+      res.json({
+        success: true,
+        message: 'Cập nhật đơn hàng thành công'
+      });
+
+    } catch (error) {
+      await connection.rollback();
+      console.error('Update order error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi cập nhật đơn hàng: ' + error.message
+      });
+    } finally {
+      connection.release();
+    }
+  }
 };
 
 module.exports = orderController;
