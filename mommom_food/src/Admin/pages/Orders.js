@@ -41,7 +41,6 @@ const Orders = () => {
   const fetchOrderDetails = async (orderId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      // Update endpoint to get product details
       const response = await axios.get(
         `http://localhost:5000/api/orders/${orderId}`,
         {
@@ -51,37 +50,12 @@ const Orders = () => {
         }
       );
 
-      console.log('API Response:', response.data);
+      console.log('Order details response:', response.data);
 
-      const orderData = response.data.data;
-      if (orderData && Array.isArray(orderData.order_details)) {
-        // Transform order details with product info
-        const items = await Promise.all(
-          orderData.order_details.map(async (detail) => {
-            // Get product info
-            const productResponse = await axios.get(
-              `http://localhost:5000/api/products/${detail.product_id}`,
-              {
-                headers: { 'Authorization': `Bearer ${token}` }
-              }
-            );
-            
-            return {
-              name: productResponse.data.data.name,
-              quantity: detail.quantity,
-              unit_price: detail.unit_price
-            };
-          })
-        );
-
-        console.log('Mapped items with names:', items);
-
-        return {
-          ...orderData,
-          items: items
-        };
+      if (response.data.success && response.data.data) {
+        return response.data.data;
       }
-      return orderData;
+      return null;
     } catch (error) {
       console.error('Error fetching order details:', error);
       return null;
@@ -92,10 +66,7 @@ const Orders = () => {
     try {
       const details = await fetchOrderDetails(order.order_id);
       if (details) {
-        setSelectedOrderDetail({
-          ...order,
-          items: details.items || []
-        });
+        setSelectedOrderDetail(details);
         setShowDetailModal(true);
       }
     } catch (err) {

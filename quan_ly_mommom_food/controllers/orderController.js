@@ -158,10 +158,19 @@ const orderController = {
     try {
       const { id } = req.params;
 
+      // Sửa câu query để lấy thêm thông tin sản phẩm
       const [orders] = await db.query(`
-        SELECT o.*, t.table_number 
+        SELECT 
+          o.*,
+          t.table_number,
+          od.quantity,
+          od.unit_price,
+          p.name as product_name,
+          p.product_id
         FROM Orders o
         LEFT JOIN Tables t ON o.table_id = t.table_id
+        LEFT JOIN OrderDetails od ON o.order_id = od.order_id 
+        LEFT JOIN Products p ON od.product_id = p.product_id
         WHERE o.order_id = ?
       `, [id]);
 
@@ -172,13 +181,13 @@ const orderController = {
         });
       }
 
-      // Lấy chi tiết các món trong đơn hàng
-      const [orderDetails] = await db.query(`
-        SELECT od.*, p.name as product_name
-        FROM OrderDetails od
-        JOIN Products p ON od.product_id = p.product_id
-        WHERE od.order_id = ?
-      `, [id]);
+      // Định dạng lại dữ liệu trả về
+      const orderDetails = orders.map(item => ({
+        name: item.product_name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        subtotal: item.quantity * item.unit_price
+      }));
 
       res.json({
         success: true,
