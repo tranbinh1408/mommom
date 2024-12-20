@@ -1264,3 +1264,128 @@ button:disabled {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
 }
 
+/* Tables styles */
+.tables-container {
+  padding: 20px;
+}
+
+.tables-container h2 {
+  margin-bottom: 0px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.admin-table th {
+  background: #f8f9fa;
+  font-weight: bold;
+}
+
+.admin-table select {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.table-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Thêm style cho nút QR */
+.qr-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.qr-btn:hover {
+  background-color: #2980b9;
+}
+
+/* Style cho modal QR */
+.qr-modal {
+  max-width: 400px;
+}
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.qr-container canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Điều chỉnh style cho các nút trong bảng */
+.edit-btn, .delete-btn, .qr-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 0 2px;
+}
+
+.edit-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+}
+
+.qr-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+}
+
+.edit-btn:hover { background-color: #2980b9; }
+.delete-btn:hover { background-color: #c0392b; }
+.qr-btn:hover { background-color: #27ae60; }
+
+/* Style cho modal QR */
+.qr-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.download-qr-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.download-qr-btn:hover {
+  background-color: #2980b9;
+}
+

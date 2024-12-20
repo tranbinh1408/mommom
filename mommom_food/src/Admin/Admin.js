@@ -7,6 +7,7 @@ import Products from './pages/Products';
 import Dashboard from './pages/Dashboard';
 import AdminSidebar from './components/AdminSidebar';
 import TakeawayOrders from './pages/TakeawayOrders';
+import Tables from './pages/Tables';
 
 const Admin = () => {
 const navigate = useNavigate();
@@ -167,47 +168,6 @@ const [error, setError] = useState(null);
     );
   }
 
-  // Tables Component
-  const Tables = () => {
-    const handleUpdateTableStatus = async (tableId, status) => {
-      try {
-        await api.put(`/tables/${tableId}/status`, { status });
-        fetchData();
-      } catch (err) {
-        setError(err.response?.data?.message);
-      }
-    };
-
-    return (
-      <div className="tables-container">
-        <h2>Tables Management</h2>
-        <button className="add-btn">Add New Table</button>
-        <div className="tables-grid">
-          {tables.map(table => (
-            <div key={table.table_id} className={`table-card ${table.status}`}>
-              <h3>Table {table.table_number}</h3>
-              <p>Capacity: {table.capacity}</p>
-              <p>Status: 
-                <select
-                  value={table.status}
-                  onChange={(e) => handleUpdateTableStatus(table.table_id, e.target.value)}
-                >
-                  <option value="available">Available</option>
-                  <option value="occupied">Occupied</option>
-                  <option value="reserved">Reserved</option>
-                </select>
-              </p>
-              <div className="table-actions">
-                <button className="edit-btn">Edit</button>
-                <button className="delete-btn">Delete</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   // Users Component
   const Users = () => {
     const handleDeleteUser = async (userId) => {
@@ -272,7 +232,11 @@ const [error, setError] = useState(null);
       case 'takeaway-orders':
         return <TakeawayOrders orders={orders} api={api} fetchData={fetchData} />;
       case 'tables':
-        return <Tables />;
+        return <Tables 
+          tables={tables} 
+          api={api}
+          fetchData={fetchData}
+        />;
       case 'users':
         return <Users />;
       default:

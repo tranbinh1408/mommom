@@ -10,6 +10,8 @@ import Menu from './components/pages/Menu';
 // import BookTable from './components/pages/BookTable';
 import Admin from './Admin/Admin'; // Updated import path
 import AdminLogin from './components/pages/AdminLogin'; // Import AdminLogin component
+import Tables from './Admin/pages/Tables';
+import TableRedirect from './components/TableRedirect';
 
 // Add Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -37,6 +39,12 @@ const App = () => {
             <Admin />
           </ProtectedRoute>
         } />
+        <Route path="/admin/tables" element={
+          <ProtectedRoute>
+            <Tables />
+          </ProtectedRoute>
+        } />
+        <Route path="/table/:tableNumber" element={<TableRedirect />} />
       </Routes>
     </Router>
   );

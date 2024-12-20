@@ -11,5 +11,6 @@ router.get('/:id', tableController.getTableById);
 router.post('/', auth.verifyToken, auth.checkRole(['admin']), tableController.createTable);
 router.put('/:id', auth.verifyToken, auth.checkRole(['admin', 'staff']), tableController.updateTable);
 router.put('/:id/status', auth.verifyToken, auth.checkRole(['admin', 'staff']), tableController.updateTableStatus);
+router.delete('/:id', auth.verifyToken, auth.checkRole(['admin']), tableController.deleteTable);
 
 module.exports = router;
