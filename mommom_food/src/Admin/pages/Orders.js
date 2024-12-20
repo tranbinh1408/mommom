@@ -303,6 +303,27 @@ const Orders = () => {
     !order.customer_name && !order.customer_phone
   );
 
+  const formatDateTime = (timestamp) => {
+    if (!timestamp) return '';
+    
+    // Tạo đối tượng Date từ timestamp
+    const date = new Date(timestamp);
+    
+    // Thêm 7 giờ để chuyển sang múi giờ Việt Nam
+    const vietnamTime = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+    
+    // Format theo định dạng Việt Nam
+    return vietnamTime.toLocaleString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour12: false
+    });
+  };
+
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -323,6 +344,8 @@ const Orders = () => {
             <th>Số lượng</th>
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
+            <th>Tạo lúc</th>
+            <th>Cập nhật</th>
             <th>Thao tác</th>
           </tr>
         </thead>
@@ -346,6 +369,8 @@ const Orders = () => {
                   {STATUS_LABELS[order.status]}
                 </div>
               </td>
+              <td>{formatDateTime(order.created_at)}</td>
+              <td>{formatDateTime(order.updated_at)}</td>
               <td>
                 <div className="action-buttons">
                   <button 

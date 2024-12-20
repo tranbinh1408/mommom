@@ -21,27 +21,6 @@ const TakeawayOrders = () => {
     return `${amount.toLocaleString('vi-VN')} đồng`;
   };
 
-  const formatDateTime = (timestamp) => {
-    if (!timestamp) return '';
-    
-    // Tạo đối tượng Date từ timestamp
-    const date = new Date(timestamp);
-    
-    // Thêm 7 giờ để chuyển sang múi giờ Việt Nam
-    const vietnamTime = new Date(date.getTime() + (7 * 60 * 60 * 1000));
-    
-    // Format theo định dạng Việt Nam
-    return vietnamTime.toLocaleString('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour12: false // Sử dụng định dạng 24 giờ
-    });
-  };
-
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
@@ -52,7 +31,7 @@ const TakeawayOrders = () => {
       setLoading(false);
     } catch (err) {
       console.error('Error:', err);
-      setError('Không thể tải danh sách đơn hàng mang về');
+      setError('Không th�� tải danh sách đơn hàng mang về');
       setLoading(false);
     }
   };
@@ -292,8 +271,6 @@ const TakeawayOrders = () => {
             <th>Món đặt</th>
             <th>Số lượng</th>
             <th>Tổng tiền</th>
-            <th>Tạo lúc</th>
-            <th>Cập nhật</th>
             <th>Thao tác</th>
           </tr>
         </thead>
@@ -324,8 +301,6 @@ const TakeawayOrders = () => {
                 ))}
               </td>
               <td>{formatCurrency(order.total_amount)}</td>
-              <td>{formatDateTime(order.created_at)}</td>
-              <td>{formatDateTime(order.updated_at)}</td>
               <td>
                 <div className="action-buttons">
                   <button className="edit-btn" onClick={() => handleEditOrder(order)}>
@@ -377,14 +352,6 @@ const TakeawayOrders = () => {
                     placeholder="Số điện thoại"
                     value={editingOrder.customer_phone || ''}
                     onChange={(e) => setEditingOrder({...editingOrder, customer_phone: e.target.value})}
-                  />
-                </div>
-                <div className="form-row">
-                  <input
-                    type="text"
-                    placeholder="Địa chỉ (không điền mặc định mang về)"
-                    value={editingOrder.address || ''}
-                    onChange={(e) => setEditingOrder({...editingOrder, address: e.target.value})}
                   />
                 </div>
               </div>

@@ -171,32 +171,22 @@ const placeOrder = async () => {
 // Add handleTakeawaySubmit function
 const handleTakeawaySubmit = async () => {
   try {
-    if (!takeawayForm.customerName || !takeawayForm.phone) {
+    // Kiểm tra thông tin bắt buộc
+    if (!takeawayForm.customerName || !takeawayForm.phone || !takeawayForm.address) {
       alert('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
-    // Gộp các item có cùng product_id
-    const mergedItems = cartItems.reduce((acc, item) => {
-      const existingItem = acc.find(i => i.product_id === item.product_id);
-      if (existingItem) {
-        existingItem.quantity += item.quantity;
-      } else {
-        acc.push({...item});
-      }
-      return acc;
-    }, []);
-
     const orderData = {
       customer_name: takeawayForm.customerName,
       customer_phone: takeawayForm.phone,
-      address: takeawayForm.address || 'Mang về',
-      items: mergedItems.map(item => ({
+      address: takeawayForm.address, // Thêm địa chỉ vào dữ liệu gửi đi
+      items: getMergedTakeawayItems().map(item => ({
         product_id: item.product_id,
         quantity: item.quantity,
         unit_price: item.price
       })),
-      total_amount: calculateTotal(cartItems)
+      total_amount: calculateTotal(getMergedTakeawayItems())
     };
 
     const response = await axios.post(
@@ -210,7 +200,7 @@ const handleTakeawaySubmit = async () => {
       setTakeawayForm({
         customerName: '',
         phone: '',
-        address: ''
+        address: '' // Reset form địa chỉ
       });
       setShowTakeaway(false);
       alert('Đặt hàng thành công!');
@@ -299,9 +289,11 @@ const handleTakeawaySubmit = async () => {
               </Link>
               <div className="cart_link" onClick={() => setShowCart(true)}>
                 <i className="fa fa-shopping-cart"></i>
-                {Array.isArray(cartItems) && cartItems.length > 0 && (
+                {Array.isArray(cartItems) && cartItems.filter(item => !item.isTakeaway).length > 0 && (
                   <span className="cart-badge">
-                    {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                    {cartItems
+                      .filter(item => !item.isTakeaway)
+                      .reduce((sum, item) => sum + item.quantity, 0)}
                   </span>
                 )}
               </div>
@@ -320,7 +312,9 @@ const handleTakeawaySubmit = async () => {
                 </div>
               </form>
               <Link to="#" className="order_online" onClick={() => setShowTakeaway(true)}>
-                Đặt mang về ({cartItems.filter(item => item.isTakeaway).length})
+                Đặt mang về ({cartItems
+                  .filter(item => item.isTakeaway)
+                  .reduce((sum, item) => sum + item.quantity, 0)})
               </Link>
             </div>
           </div>
