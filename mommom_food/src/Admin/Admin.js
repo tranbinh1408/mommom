@@ -5,6 +5,7 @@ import './Admin.css';
 import Orders from './pages/Orders'; // Thêm dòng này
 import Products from './pages/Products';
 import Dashboard from './pages/Dashboard';
+import AdminSidebar from './components/AdminSidebar';
 
 const Admin = () => {
 const navigate = useNavigate();
@@ -260,38 +261,7 @@ const [error, setError] = useState(null);
       {loading && <LoadingSpinner />}
       <ErrorMessage message={error} />
       
-      <nav className="admin-sidebar">
-        <div className="sidebar-header">
-          <h3>Mommom Admin</h3>
-        </div>
-        <ul className="sidebar-menu">
-          <li className={currentView === 'dashboard' ? 'active' : ''} 
-              onClick={() => setCurrentView('dashboard')}>
-            <i className="fas fa-tachometer-alt"></i>
-            <span>Dashboard</span>
-          </li>
-          <li className={currentView === 'products' ? 'active' : ''} 
-              onClick={() => setCurrentView('products')}>
-            <i className="fas fa-utensils"></i>
-            <span>Products</span>
-          </li>
-          <li className={currentView === 'orders' ? 'active' : ''} 
-              onClick={() => setCurrentView('orders')}>
-            <i className="fas fa-shopping-cart"></i>
-            <span>Orders</span>
-          </li>
-          <li className={currentView === 'tables' ? 'active' : ''} 
-              onClick={() => setCurrentView('tables')}>
-            <i className="fas fa-chair"></i>
-            <span>Tables</span>
-          </li>
-          <li className={currentView === 'users' ? 'active' : ''} 
-              onClick={() => setCurrentView('users')}>
-            <i className="fas fa-users"></i>
-            <span>Users</span>
-          </li>
-        </ul>
-      </nav>
+      <AdminSidebar currentView={currentView} setCurrentView={setCurrentView} />
 
       <div className="admin-content">
         <header className="admin-header">

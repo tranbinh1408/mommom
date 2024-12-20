@@ -1096,3 +1096,52 @@ button:disabled {
   color: #155724; 
 }
 
+/* Style cho header quản lý đơn hàng */
+.orders-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.orders-header h2 {
+  color: #2c3e50;
+  margin: 0;
+  margin-right: auto;
+}
+
+.orders-add-btn {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.orders-add-btn:hover {
+  background-color: #27ae60;
+  transform: translateY(-1px);
+}
+
+/* Cập nhật style cho container */
+.orders-container {
+  padding: 20px;
+  background: #f8f9fa;
+}
+
+.order-total {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.order-total h4 {
+  color: #2c3e50;
+  font-size: 1.2em;
+  text-align: right;
+}
+

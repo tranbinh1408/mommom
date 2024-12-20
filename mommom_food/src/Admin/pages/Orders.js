@@ -18,12 +18,8 @@ const Orders = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount).replace('₫', '000đ');
+    if (!amount) return '0 đồng';
+    return `${amount.toLocaleString('vi-VN')} đồng`;
   };
 
   const fetchOrders = async () => {
@@ -87,14 +83,17 @@ const Orders = () => {
       const response = await axios.put(
         `http://localhost:5000/api/orders/${orderId}/status`,
         { status: newStatus },
-        { headers: { 'Authorization': `Bearer ${token}` }}
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
       );
 
       if (response.data.success) {
         await fetchOrders();
+        alert('Cập nhật trạng thái thành công');
       }
-    } catch (err) {
-      console.error('Error:', err);
+    } catch (error) {
+      console.error('Error updating order status:', error);
       alert('Không thể cập nhật trạng thái đơn hàng');
     }
   };
@@ -140,7 +139,6 @@ const Orders = () => {
   const handleEditOrder = async (orderId) => {
     try {
       const token = localStorage.getItem('adminToken');
-      // Lấy thông tin chi tiết đơn hàng
       const response = await axios.get(
         `http://localhost:5000/api/orders/${orderId}`,
         {
@@ -152,21 +150,15 @@ const Orders = () => {
 
       if (response.data.success) {
         const orderData = response.data.data;
-        console.log('Order data:', orderData); // Debug log
-        
-        // Format items với đầy đủ thông tin
-        const formattedItems = orderData.items.map(item => ({
-          product_id: item.product_id.toString(), // Chuyển sang string để match với value của select
-          name: item.product_name || item.name, // Sử dụng product_name từ API
-          quantity: item.quantity,
-          unit_price: item.unit_price
-        }));
-
         setEditingOrder({
           order_id: orderId,
-          items: formattedItems
+          items: orderData.items.map(item => ({
+            product_id: item.product_id,
+            name: item.name,
+            quantity: item.quantity,
+            unit_price: item.unit_price
+          }))
         });
-        
         setShowEditModal(true);
       }
     } catch (error) {
@@ -251,12 +243,73 @@ const Orders = () => {
     });
   };
 
+  const handleOpenModal = () => {
+    setEditingOrder({
+      items: [{ product_id: '', quantity: 1 }]
+    });
+    setShowEditModal(true);
+  };
+
+  const handleCreateOrder = async () => {
+    try {
+      // Validate items
+      if (!editingOrder.items?.length || editingOrder.items.some(item => !item.product_id)) {
+        alert('Vui lòng chọn ít nhất một món');
+        return;
+      }
+
+      const token = localStorage.getItem('adminToken');
+      const total = calculateTotal(editingOrder.items); // Tính tổng tiền
+
+      const orderData = {
+        items: editingOrder.items.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unit_price: products.find(p => p.product_id === item.product_id)?.price || 0
+        })),
+        total_amount: total // Thêm tổng tiền vào dữ liệu gửi đi
+      };
+
+      const response = await axios.post(
+        'http://localhost:5000/api/orders/create',
+        orderData,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (response.data.success) {
+        setShowEditModal(false);
+        setEditingOrder(null);
+        await fetchOrders();
+        alert('Tạo đơn hàng thành công');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Không thể tạo đơn hàng: ' + error.response?.data?.message || error.message);
+    }
+  };
+
+  // Thêm hàm tính tổng tiền
+  const calculateTotal = (items) => {
+    return items.reduce((total, item) => {
+      const product = products.find(p => p.product_id.toString() === item.product_id.toString());
+      return total + (product?.price || 0) * item.quantity;
+    }, 0);
+  };
+
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <div className="orders-container">
-      <h2>Quản lý đơn hàng</h2>
+      <div className="products-header">
+        <h2>Quản lý đơn hàng</h2>
+        <button className="products-add-btn" onClick={handleOpenModal}>
+          Thêm đơn hàng mới
+        </button>
+      </div>
+      
       <table className="orders-table">
         <thead>
           <tr>
@@ -288,7 +341,7 @@ const Orders = () => {
                   <div key={idx}>{item.quantity}</div>
                 ))}
               </td>
-              <td>{formatCurrency(order.total_amount)}</td>
+              <td>{formatCurrency(order.total_amount || 0)}</td>
               <td>
                 <div className={`status ${order.status}`}>
                   {STATUS_LABELS[order.status]}
@@ -382,7 +435,7 @@ const Orders = () => {
         <div className="orders-modal">
           <div className="orders-modal-content">
             <div className="orders-modal-header">
-              <h3>Chỉnh sửa đơn hàng #{editingOrder.order_id}</h3>
+              <h3>{editingOrder.order_id ? 'Chỉnh sửa đơn hàng #' + editingOrder.order_id : 'Thêm đơn hàng mới'}</h3>
               <button className="close-btn" onClick={() => setShowEditModal(false)}>&times;</button>
             </div>
             
@@ -447,12 +500,18 @@ const Orders = () => {
                 }}>
                   Thêm món
                 </button>
+                <div className="order-total">
+                  <h4>Tổng tiền: {formatCurrency(calculateTotal(editingOrder.items))}</h4>
+                </div>
               </div>
             </div>
 
             <div className="modal-footer">
-              <button className="save-btn" onClick={() => handleUpdateOrder(editingOrder)}>
-                Lưu thay đổi
+              <button 
+                className="save-btn" 
+                onClick={() => editingOrder.order_id ? handleUpdateOrder(editingOrder) : handleCreateOrder()}
+              >
+                {editingOrder.order_id ? 'Lưu thay đổi' : 'Tạo đơn hàng'}
               </button>
               <button className="cancel-btn" onClick={() => setShowEditModal(false)}>
                 Hủy
