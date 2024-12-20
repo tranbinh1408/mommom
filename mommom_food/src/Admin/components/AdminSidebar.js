@@ -22,7 +22,12 @@ const AdminSidebar = ({ currentView, setCurrentView }) => {
           <li className={currentView === 'orders' ? 'active' : ''} 
               onClick={() => setCurrentView('orders')}>
             <i className="fas fa-shopping-cart"></i>
-            <span>Đơn hàng</span>
+            <span>Đơn hàng (tại chỗ)</span>
+          </li>
+          <li className={currentView === 'takeaway-orders' ? 'active' : ''} 
+              onClick={() => setCurrentView('takeaway-orders')}>
+            <i className="fas fa-shopping-bag"></i>
+            <span>Đơn hàng (mang về)</span>
           </li>
           <li className={currentView === 'tables' ? 'active' : ''} 
               onClick={() => setCurrentView('tables')}>

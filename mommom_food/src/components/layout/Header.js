@@ -70,18 +70,53 @@ const calculateTotal = (items) => {
   }, 0);
 };
 
-  const removeFromCart = (productId) => {
-    const newItems = cartItems.filter(item => item.product_id !== productId);
+  const addToCart = (product, isTakeaway = false) => {
+    const newItem = {
+      ...product,
+      quantity: 1,
+      isTakeaway // true nếu là đặt mang về, false nếu đặt tại bàn
+    };
+
+    setCartItems(prevItems => {
+      // Tìm món đã tồn tại với cùng loại đơn (mang về/tại bàn)
+      const existingItem = prevItems.find(
+        item => item.product_id === product.product_id && item.isTakeaway === isTakeaway
+      );
+
+      let newItems;
+      if (existingItem) {
+        // Nếu món đã tồn tại, tăng số lượng
+        newItems = prevItems.map(item => {
+          if (item.product_id === product.product_id && item.isTakeaway === isTakeaway) {
+            return { ...item, quantity: item.quantity + 1 };
+          }
+          return item;
+        });
+      } else {
+        // Nếu món chưa tồn tại, thêm mới
+        newItems = [...prevItems, newItem];
+      }
+
+      // Lưu vào localStorage
+      localStorage.setItem('cart', JSON.stringify(newItems));
+      return newItems;
+    });
+  };
+
+  const removeFromCart = (productId, isTakeaway) => {
+    const newItems = cartItems.filter(
+      item => !(item.product_id === productId && item.isTakeaway === isTakeaway)
+    );
     setCartItems(newItems);
     localStorage.setItem('cart', JSON.stringify(newItems));
     setTotalAmount(calculateTotal(newItems));
   };
 
-  const updateQuantity = (productId, newQuantity) => {
+  const updateQuantity = (productId, newQuantity, isTakeaway) => {
     if (newQuantity < 1) return;
 
     const newItems = cartItems.map(item => {
-      if (item.product_id === productId) {
+      if (item.product_id === productId && item.isTakeaway === isTakeaway) {
         return { ...item, quantity: newQuantity };
       }
       return item;
@@ -136,48 +171,53 @@ const placeOrder = async () => {
 // Add handleTakeawaySubmit function
 const handleTakeawaySubmit = async () => {
   try {
-    const takeawayItems = cartItems.filter(item => item.isTakeaway);
-    
-    // Match database structure exactly
+    if (!takeawayForm.customerName || !takeawayForm.phone) {
+      alert('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    // Gộp các item có cùng product_id
+    const mergedItems = cartItems.reduce((acc, item) => {
+      const existingItem = acc.find(i => i.product_id === item.product_id);
+      if (existingItem) {
+        existingItem.quantity += item.quantity;
+      } else {
+        acc.push({...item});
+      }
+      return acc;
+    }, []);
+
     const orderData = {
-      // Main order info
-      items: takeawayItems.map(item => ({
+      customer_name: takeawayForm.customerName,
+      customer_phone: takeawayForm.phone,
+      address: takeawayForm.address || 'Mang về',
+      items: mergedItems.map(item => ({
         product_id: item.product_id,
         quantity: item.quantity,
         unit_price: item.price
       })),
-      // Customer info
-      customer_name: takeawayForm.customerName,
-      customer_phone: takeawayForm.phone,
-      customer_email: '',
-      address: takeawayForm.address,
-      total_amount: calculateTotal(takeawayItems),
-      status: 'created',
-      type: 'takeaway'
+      total_amount: calculateTotal(cartItems)
     };
 
-    console.log('Sending order data:', orderData);
-
     const response = await axios.post(
-      'http://localhost:5000/api/orders/create',
+      'http://localhost:5000/api/takeaway-orders/create',
       orderData
     );
 
     if (response.data.success) {
-      const newCart = cartItems.filter(item => !item.isTakeaway);
-      localStorage.setItem('cart', JSON.stringify(newCart));
-      setCartItems(newCart);
-      setShowTakeaway(false);
+      localStorage.removeItem('cart');
+      setCartItems([]);
       setTakeawayForm({
         customerName: '',
         phone: '',
         address: ''
       });
+      setShowTakeaway(false);
       alert('Đặt hàng thành công!');
     }
-  } catch (err) {
-    console.error('Error data:', err.response?.data);
-    alert('Đặt hàng thất bại');
+  } catch (error) {
+    console.error('Error creating takeaway order:', error);
+    alert('Có lỗi xảy ra khi đặt hàng');
   }
 };
 
@@ -193,6 +233,20 @@ const handleTakeawaySubmit = async () => {
     navigate(`/menu?search=${encodeURIComponent(searchTerm)}`);
     setSearchTerm('');
     setShowSearchResults(false);
+  };
+
+  // Thêm hàm để gộp các item giống nhau
+  const getMergedTakeawayItems = () => {
+    const takeawayItems = cartItems.filter(item => item.isTakeaway);
+    return takeawayItems.reduce((acc, item) => {
+      const existingItem = acc.find(i => i.product_id === item.product_id);
+      if (existingItem) {
+        existingItem.quantity += item.quantity;
+      } else {
+        acc.push({...item});
+      }
+      return acc;
+    }, []);
   };
 
   return (
@@ -283,39 +337,35 @@ const handleTakeawaySubmit = async () => {
             </div>
             
             <div className="cart-modal-body">
-              {Array.isArray(cartItems) && cartItems.length > 0 ? (
-                cartItems.map(item => (
-                  <div key={item.product_id} className="cart-item">
-                    <img src={item.image_url} alt={item.name} />
-                    <div className="cart-item-info">
-                      <h6>{item.name}</h6>
-                      <p className="price">{formatPrice(item.price)}</p>
-                    </div>
-                    <div className="quantity-controls">
-                      <button 
-                        onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                        className="quantity-btn"
-                        disabled={item.quantity <= 1}
-                      >
-                        -
-                      </button>
-                      <span className="quantity">{item.quantity}</span>
-                      <button 
-                        onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                        className="quantity-btn"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <button 
-                      className="remove-btn"
-                      onClick={() => removeFromCart(item.product_id)}
-                    >×</button>
+              {cartItems.filter(item => !item.isTakeaway).map(item => (
+                <div key={`table-${item.product_id}`} className="cart-item">
+                  <img src={item.image_url} alt={item.name} />
+                  <div className="cart-item-info">
+                    <h6>{item.name}</h6>
+                    <p className="price">{formatPrice(item.price)}</p>
                   </div>
-                ))
-              ) : (
-                <p>Giỏ hàng trống</p>
-              )}
+                  <div className="quantity-controls">
+                    <button 
+                      onClick={() => updateQuantity(item.product_id, item.quantity - 1, false)}
+                      className="quantity-btn"
+                      disabled={item.quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="quantity">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.product_id, item.quantity + 1, false)}
+                      className="quantity-btn"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button 
+                    className="remove-btn"
+                    onClick={() => removeFromCart(item.product_id, false)}
+                  >×</button>
+                </div>
+              ))}
             </div>
             
             <div className="cart-modal-footer">
@@ -345,20 +395,38 @@ const handleTakeawaySubmit = async () => {
             </div>
             
             <div className="cart-modal-body">
-              {/* Show takeaway items */}
-              {cartItems.filter(item => item.isTakeaway).map(item => (
-                <div key={item.product_id} className="cart-item">
+              {/* Thay đổi từ cartItems.filter sang getMergedTakeawayItems */}
+              {getMergedTakeawayItems().map(item => (
+                <div key={`takeaway-${item.product_id}`} className="cart-item">
                   <img src={item.image_url} alt={item.name} />
                   <div className="cart-item-info">
                     <h6>{item.name}</h6>
                     <p className="price">{formatPrice(item.price)}</p>
-                    <div className="quantity">SL: {item.quantity}</div>
                   </div>
-                  <button className="remove-btn" onClick={() => removeFromCart(item.product_id)}>×</button>
+                  <div className="quantity-controls">
+                    <button 
+                      onClick={() => updateQuantity(item.product_id, item.quantity - 1, true)}
+                      className="quantity-btn"
+                      disabled={item.quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="quantity">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.product_id, item.quantity + 1, true)}
+                      className="quantity-btn"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button 
+                    className="remove-btn"
+                    onClick={() => removeFromCart(item.product_id, true)}
+                  >×</button>
                 </div>
               ))}
               
-              {/* Add delivery form */}
+              {/* Form thông tin khách hàng giữ nguyên */}
               <form onSubmit={(e) => {
                 e.preventDefault();
                 handleTakeawaySubmit();
@@ -405,7 +473,7 @@ const handleTakeawaySubmit = async () => {
             <div className="cart-modal-footer">
               <div className="cart-total">
                 <h6>Tổng cộng:</h6>
-                <p>{formatPrice(calculateTotal(cartItems.filter(item => item.isTakeaway)))}</p>
+                <p>{formatPrice(calculateTotal(getMergedTakeawayItems()))}</p>
               </div>
               <button 
                 className="checkout-btn"

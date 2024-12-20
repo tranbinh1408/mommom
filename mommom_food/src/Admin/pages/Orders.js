@@ -298,6 +298,11 @@ const Orders = () => {
     }, 0);
   };
 
+  // Thêm hàm filter orders để chỉ lấy đơn không có thông tin khách hàng
+  const filteredOrders = orders.filter(order => 
+    !order.customer_name && !order.customer_phone
+  );
+
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -314,7 +319,6 @@ const Orders = () => {
         <thead>
           <tr>
             <th>Mã đơn</th>
-            {/* <th>Thông tin khách hàng</th> */}
             <th>Món đặt</th>
             <th>Số lượng</th>
             <th>Tổng tiền</th>
@@ -323,14 +327,9 @@ const Orders = () => {
           </tr>
         </thead>
         <tbody>
-          {orders.map(order => (
+          {filteredOrders.map(order => (
             <tr key={order.order_id}>
               <td>ĐH{order.order_id.toString().padStart(4, '0')}</td>
-              {/* <td>
-                <div><strong>Tên:</strong> {order.customer_name || 'N/A'}</div>
-                <div><strong>SĐT:</strong> {order.customer_phone || 'N/A'}</div>
-                <div><strong>Email:</strong> {order.customer_email || 'N/A'}</div>
-              </td> */}
               <td>
                 {order.items?.map((item, idx) => (
                   <div key={idx}>{item.name}</div>

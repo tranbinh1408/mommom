@@ -9,6 +9,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const productRoutes = require('./routes/productRoutes');
 const tableRoutes = require('./routes/tableRoutes');
 const userRoutes = require('./routes/userRoutes');
+const takeawayOrderRoutes = require('./routes/takeawayOrderRoutes');
 
 // Import middleware
 const auth = require('./middleware/auth');
@@ -38,6 +39,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/takeaway-orders', takeawayOrderRoutes);
 
 // Test route
 app.get('/', (req, res) => {

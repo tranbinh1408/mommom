@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Admin.css';
-import Orders from './pages/Orders'; // Thêm dòng này
+import Orders from './pages/Orders';
 import Products from './pages/Products';
 import Dashboard from './pages/Dashboard';
 import AdminSidebar from './components/AdminSidebar';
+import TakeawayOrders from './pages/TakeawayOrders';
 
 const Admin = () => {
 const navigate = useNavigate();
@@ -255,6 +256,30 @@ const [error, setError] = useState(null);
     );
   };
 
+  const renderContent = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return <Dashboard 
+          products={products || []}
+          orders={orders || []} 
+          tables={tables || []}
+          users={users || []}
+        />;
+      case 'products':
+        return <Products products={products} api={api} fetchData={fetchData} />;
+      case 'orders':
+        return <Orders orders={orders} api={api} fetchData={fetchData} />;
+      case 'takeaway-orders':
+        return <TakeawayOrders orders={orders} api={api} fetchData={fetchData} />;
+      case 'tables':
+        return <Tables />;
+      case 'users':
+        return <Users />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   // Main admin layout
   return (
     <div className="admin-container">
@@ -274,28 +299,7 @@ const [error, setError] = useState(null);
         </header>
 
         <main className="admin-main">
-          {currentView === 'dashboard' && 
-            <Dashboard 
-              products={products}
-              orders={orders}
-              tables={tables}
-              users={users}
-            />
-          }
-          {currentView === 'products' && <Products 
-            products={products}
-            api={api}
-            fetchData={fetchData}
-          />}
-          {currentView === 'orders' && <Orders 
-            api={api} 
-            orders={orders} 
-            fetchData={fetchData}
-            loading={loading}
-            error={error}
-          />}
-          {currentView === 'tables' && <Tables />}
-          {currentView === 'users' && <Users />}
+          {renderContent()}
         </main>
       </div>
     </div>
