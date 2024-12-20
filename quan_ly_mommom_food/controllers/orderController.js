@@ -80,44 +80,44 @@ const createOrder = async (req, res) => {
 };
 
 const getOrderDetails = async (req, res) => {
-  const { orderId } = req.params;
   try {
+    const { id } = req.params;
+    
     const [orderDetails] = await db.query(
       `SELECT 
-        o.*,
+        od.product_id,
         od.quantity,
         od.unit_price,
         p.name,
-        p.product_id
-      FROM Orders o
-      JOIN OrderDetails od ON o.order_id = od.order_id
+        p.price
+      FROM OrderDetails od
       JOIN Products p ON od.product_id = p.product_id
-      WHERE o.order_id = ?`,
-      [orderId]
+      WHERE od.order_id = ?`,
+      [id]
     );
 
+    console.log('Query result:', orderDetails);
+
     if (orderDetails && orderDetails.length > 0) {
-      // Format lại data trả về
-      const order = {
-        order_id: orderDetails[0].order_id,
-        status: orderDetails[0].status,
-        total_amount: orderDetails[0].total_amount,
-        items: orderDetails.map(item => ({
-          product_id: item.product_id,
-          name: item.name,
-          quantity: item.quantity,
-          unit_price: item.unit_price
-        }))
-      };
+      const items = orderDetails.map(detail => ({
+        product_id: detail.product_id,
+        name: detail.name,
+        quantity: detail.quantity,
+        unit_price: detail.unit_price
+      }));
 
       res.json({
         success: true,
-        data: order
+        data: {
+          items: items
+        }
       });
     } else {
-      res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy đơn hàng'
+      res.json({
+        success: true,
+        data: {
+          items: []
+        }
       });
     }
   } catch (error) {
@@ -176,50 +176,35 @@ const orderController = {
   getOrderById: async (req, res) => {
     try {
       const { id } = req.params;
-
-      // Sửa câu query để lấy thêm thông tin sản phẩm
       const [orders] = await db.query(`
         SELECT 
-          o.*,
-          t.table_number,
+          od.product_id,
+          p.name,
           od.quantity,
-          od.unit_price,
-          p.name as product_name,
-          p.product_id
+          od.unit_price
         FROM Orders o
-        LEFT JOIN Tables t ON o.table_id = t.table_id
-        LEFT JOIN OrderDetails od ON o.order_id = od.order_id 
-        LEFT JOIN Products p ON od.product_id = p.product_id
+        JOIN OrderDetails od ON o.order_id = od.order_id 
+        JOIN Products p ON od.product_id = p.product_id
         WHERE o.order_id = ?
       `, [id]);
 
-      if (orders.length === 0) {
-        return res.status(404).json({
+      if (orders.length > 0) {
+        res.json({
+          success: true,
+          data: {
+            items: orders
+          }
+        });
+      } else {
+        res.status(404).json({
           success: false,
           message: 'Không tìm thấy đơn hàng'
         });
       }
-
-      // Định dạng lại dữ liệu trả về
-      const orderDetails = orders.map(item => ({
-        name: item.product_name,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        subtotal: item.quantity * item.unit_price
-      }));
-
-      res.json({
-        success: true,
-        data: {
-          ...orders[0],
-          items: orderDetails
-        }
-      });
-
     } catch (error) {
       console.error('Get order error:', error);
       res.status(500).json({
-        success: false,
+        success: false, 
         message: 'Lỗi khi lấy thông tin đơn hàng'
       });
     }

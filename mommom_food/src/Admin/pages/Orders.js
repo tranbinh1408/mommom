@@ -139,24 +139,25 @@ const Orders = () => {
 
   const handleEditOrder = async (orderId) => {
     try {
+      const token = localStorage.getItem('adminToken');
       // Lấy thông tin chi tiết đơn hàng
       const response = await axios.get(
         `http://localhost:5000/api/orders/${orderId}`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            'Authorization': `Bearer ${token}`
           }
         }
       );
 
       if (response.data.success) {
-        // Format dữ liệu để hiển thị trong modal
         const orderData = response.data.data;
+        console.log('Order data:', orderData); // Debug log
         
-        // Đảm bảo items có đầy đủ thông tin
+        // Format items với đầy đủ thông tin
         const formattedItems = orderData.items.map(item => ({
-          product_id: item.product_id,
-          name: item.name,
+          product_id: item.product_id.toString(), // Chuyển sang string để match với value của select
+          name: item.product_name || item.name, // Sử dụng product_name từ API
           quantity: item.quantity,
           unit_price: item.unit_price
         }));
@@ -176,6 +177,15 @@ const Orders = () => {
 
   const handleUpdateOrder = async (updatedOrder) => {
     try {
+      // Kiểm tra món ăn trùng nhau
+      const productIds = updatedOrder.items.map(item => item.product_id);
+      const hasDuplicates = productIds.length !== new Set(productIds).size;
+      
+      if (hasDuplicates) {
+        alert('Không thể đặt món ăn trùng nhau');
+        return;
+      }
+
       // Chỉ gửi các trường có trong database
       const orderData = {
         customer_name: updatedOrder.customer_name || null,
@@ -251,7 +261,7 @@ const Orders = () => {
         <thead>
           <tr>
             <th>Mã đơn</th>
-            <th>Thông tin khách hàng</th>
+            {/* <th>Thông tin khách hàng</th> */}
             <th>Món đặt</th>
             <th>Số lượng</th>
             <th>Tổng tiền</th>
@@ -263,11 +273,11 @@ const Orders = () => {
           {orders.map(order => (
             <tr key={order.order_id}>
               <td>ĐH{order.order_id.toString().padStart(4, '0')}</td>
-              <td>
+              {/* <td>
                 <div><strong>Tên:</strong> {order.customer_name || 'N/A'}</div>
                 <div><strong>SĐT:</strong> {order.customer_phone || 'N/A'}</div>
                 <div><strong>Email:</strong> {order.customer_email || 'N/A'}</div>
-              </td>
+              </td> */}
               <td>
                 {order.items?.map((item, idx) => (
                   <div key={idx}>{item.name}</div>
@@ -380,18 +390,19 @@ const Orders = () => {
               <div className="order-items-list">
                 <h4>Danh sách món:</h4>
                 <div className="ordered-items">
-                  {editingOrder.items?.map((item, index) => (
+                  {editingOrder?.items?.map((item, index) => (
                     <div key={index} className="ordered-item">
                       <select 
-                        value={item.product_id || ''}
+                        value={item.product_id}
                         onChange={(e) => {
                           const selectedProduct = products.find(p => p.product_id.toString() === e.target.value);
                           const newItems = [...editingOrder.items];
                           newItems[index] = {
                             ...newItems[index],
-                            product_id: e.target.value,
-                            name: selectedProduct ? selectedProduct.name : '',
-                            unit_price: selectedProduct ? selectedProduct.price : 0
+                            product_id: selectedProduct?.product_id || '',
+                            name: selectedProduct?.name || '',
+                            unit_price: selectedProduct?.price || 0,
+                            quantity: item.quantity
                           };
                           setEditingOrder({...editingOrder, items: newItems});
                         }}
