@@ -10,6 +10,8 @@
         "concurrently": "^8.2.0"
     },
     "dependencies": {
-        "node-telegram-bot-api": "^0.66.0"
+        "chart.js": "^4.4.7",
+        "node-telegram-bot-api": "^0.66.0",
+        "react-chartjs-2": "^5.2.0"
     }
 }

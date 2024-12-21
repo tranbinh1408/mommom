@@ -9,14 +9,17 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.3.0",
     "bcryptjs": "^2.4.3",
+    "chart.js": "^4.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "mysql2": "^3.2.0",
-    "node-telegram-bot-api": "^0.63.0"
+    "node-telegram-bot-api": "^0.63.0",
+    "react-chartjs-2": "^5.2.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
