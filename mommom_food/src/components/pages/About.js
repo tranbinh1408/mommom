@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './styles/About.css';
+import { useCallStaff } from '../../hooks/useCallStaff';
 
 const About = () => {
+  const { callStaff, loading } = useCallStaff();
+
   useEffect(() => {
     // Khởi tạo các scripts nếu cần
     const initializeScripts = () => {
@@ -22,16 +25,9 @@ const About = () => {
       // Cleanup nếu cần
     };
   }, []);
+
   return (
     <div className="sub_page">
-      {/* Hero Area */}
-      {/* <div className="hero_area">
-        <div className="bg-box">
-          <img src="images/hero-bg.jpg" alt="" />
-        </div>
-      </div> */}
-
-      {/* About Section */}
       <section className="about_section layout_padding">
         <div className="container">
           <div className="row">
@@ -50,9 +46,13 @@ const About = () => {
                 <p>
                 Phở Việt Nam - tinh hoa ẩm thực truyền thống, hòa quyện hương vị đậm đà từ nước dùng thơm ngọt, bánh phở mềm mịn, và thịt bò hay gà tươi ngon, mang đến trải nghiệm khó quên trong từng bát phở.
                 </p>
-                <a href="">
-                  Thêm
-                </a>
+                <button 
+                  className="call-staff-btn"
+                  onClick={callStaff}
+                  disabled={loading}
+                >
+                  {loading ? 'Đang gọi...' : 'Gọi nhân viên'}
+                </button>
               </div>
             </div>
           </div>

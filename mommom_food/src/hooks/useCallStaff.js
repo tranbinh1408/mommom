@@ -2,32 +2,33 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export const useCallStaff = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const callStaff = async () => {
-    const selectedTable = localStorage.getItem('selectedTable');
-    
-    if (!selectedTable) {
-      alert('Vui lòng quét mã QR bàn trước khi gọi nhân viên');
-      return false;
-    }
-
     try {
-      setIsLoading(true);
-      await axios.post('http://localhost:5000/api/notify/staff', {
-        table: selectedTable,
-        message: `Bàn ${selectedTable} khách hàng cần trợ giúp`
+      setLoading(true);
+      setError(null);
+      
+      const tableNumber = localStorage.getItem('selectedTable');
+      if (!tableNumber) {
+        throw new Error('Không tìm thấy thông tin bàn');
+      }
+
+      const response = await axios.post('http://localhost:5000/api/notify/call-staff', {
+        tableId: tableNumber
       });
-      alert('Đã gọi nhân viên, nhân viên sẽ đến ngay!');
-      return true;
-    } catch (error) {
-      console.error('Error calling staff:', error);
-      alert('Không thể gọi nhân viên, vui lòng thử lại sau');
-      return false;
+
+      if (response.data.success) {
+        alert('Nhân viên sẽ đến ngay!');
+      }
+    } catch (err) {
+      setError(err.message);
+      alert('Không thể gọi nhân viên: ' + err.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  return { callStaff, isLoading };
-}; 
+  return { callStaff, loading, error };
+};

@@ -80,3 +80,27 @@
   position: relative;
   z-index: 3;
 }
+
+.call-staff-btn {
+  display: inline-block;
+  padding: 10px 55px;
+  background-color: #ffbe33;
+  color: #ffffff;
+  border-radius: 45px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s;
+  margin-top: 20px;
+}
+
+.call-staff-btn:hover {
+  background-color: #e69c00;
+  transform: translateY(-2px);
+}
+
+.call-staff-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

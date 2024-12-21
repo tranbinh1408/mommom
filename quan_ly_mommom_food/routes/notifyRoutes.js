@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controllers/notifyController');
+const notifyController = require('../controllers/notifyController');
 
-// Debug log
-console.log('Controller functions:', Object.keys(controller));
+router.post('/call-staff', notifyController.callStaff);
 
-router.post('/staff', controller.notifyStaff);
-
-module.exports = router; 
+module.exports = router;
