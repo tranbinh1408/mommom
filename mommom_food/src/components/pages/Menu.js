@@ -46,7 +46,10 @@ const Menu = () => {
       const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
       const cartArray = Array.isArray(existingCart) ? existingCart : [];
       
-      const existingItem = cartArray.find(item => item.product_id === selectedProduct.product_id);
+      // Tìm món trong cùng loại đơn hàng (ăn tại chỗ)
+      const existingItem = cartArray.find(
+        item => item.product_id === selectedProduct.product_id && !item.isTakeaway
+      );
       
       if (existingItem) {
         existingItem.quantity += quantity;
@@ -55,8 +58,9 @@ const Menu = () => {
           product_id: selectedProduct.product_id,
           name: selectedProduct.name,
           image_url: selectedProduct.image_url,
-          price: parseFloat(selectedProduct.price), // Ensure price is a number
-          quantity: quantity
+          price: parseFloat(selectedProduct.price.toString().replace(/[^\d.-]/g, '')),
+          quantity: quantity,
+          isTakeaway: false // Đánh dấu là đơn ăn tại chỗ
         });
       }
   
@@ -66,7 +70,7 @@ const Menu = () => {
       setShowModal(false);
       setSelectedProduct(null);
       setQuantity(1);
-      alert('Đã thêm vào giỏ hàng!');
+      alert('Đã thêm vào giỏ hàng ăn tại chỗ!');
     } catch (error) {
       console.error('Error updating cart:', error);
       alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
@@ -77,19 +81,27 @@ const Menu = () => {
     if (!selectedProduct) return;
     
     try {
-      const takeawayItem = {
-        product_id: selectedProduct.product_id,
-        name: selectedProduct.name,
-        image_url: selectedProduct.image_url,
-        price: parseFloat(selectedProduct.price),
-        quantity: quantity,
-        isTakeaway: true
-      };
-  
       const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
       const cartArray = Array.isArray(existingCart) ? existingCart : [];
-      cartArray.push(takeawayItem);
       
+      // Tìm món trong cùng loại đơn hàng (mang về)
+      const existingItem = cartArray.find(
+        item => item.product_id === selectedProduct.product_id && item.isTakeaway
+      );
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cartArray.push({
+          product_id: selectedProduct.product_id,
+          name: selectedProduct.name,
+          image_url: selectedProduct.image_url,
+          price: parseFloat(selectedProduct.price.toString().replace(/[^\d.-]/g, '')),
+          quantity: quantity,
+          isTakeaway: true // Đánh dấu là đơn mang về
+        });
+      }
+  
       localStorage.setItem('cart', JSON.stringify(cartArray));
       window.dispatchEvent(new CustomEvent('cartUpdated'));
   
@@ -99,7 +111,7 @@ const Menu = () => {
       alert('Đã thêm vào đơn hàng mang về!');
     } catch (error) {
       console.error('Error adding takeaway order:', error);
-      alert('Có lỗi xảy ra');
+      alert('Có lỗi xảy ra khi thêm vào đơn mang về');
     }
   };
 

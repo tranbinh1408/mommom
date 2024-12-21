@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Header.css';
+import { useCallStaff } from '../../hooks/useCallStaff';
+
 const Header = () => {
   const location = useLocation();
   const path = location.pathname;
@@ -12,13 +14,15 @@ const Header = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
+  const { callStaff } = useCallStaff();
 
   // Add new state
   const [showTakeaway, setShowTakeaway] = useState(false);
   const [takeawayForm, setTakeawayForm] = useState({
     customerName: '',
     phone: '',
-    address: ''
+    address: '',
+    items: []
   });
 
   useEffect(() => {
@@ -63,9 +67,19 @@ const Header = () => {
 // Header.js
 const calculateTotal = (items) => {
   if (!Array.isArray(items) || items.length === 0) return 0;
+  
   return items.reduce((sum, item) => {
-    const price = Number(item.price) || 0;
-    const quantity = Number(item.quantity) || 0;
+    // Đảm bảo price và quantity là số
+    const price = typeof item.price === 'string' ? 
+      parseFloat(item.price.replace(/[^\d.-]/g, '')) : 
+      parseFloat(item.price);
+    const quantity = parseInt(item.quantity);
+    
+    if (isNaN(price) || isNaN(quantity)) {
+      console.error('Invalid price or quantity:', item);
+      return sum;
+    }
+    
     return sum + (price * quantity);
   }, 0);
 };
@@ -113,18 +127,34 @@ const calculateTotal = (items) => {
   };
 
   const updateQuantity = (productId, newQuantity, isTakeaway) => {
-    if (newQuantity < 1) return;
+    // Kiểm tra số lượng hợp lệ
+    if (newQuantity < 1 || newQuantity > 100) {
+      alert('Số lượng không hợp lệ (1-100)');
+      return;
+    }
 
-    const newItems = cartItems.map(item => {
-      if (item.product_id === productId && item.isTakeaway === isTakeaway) {
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
+    try {
+      const newItems = cartItems.map(item => {
+        if (item.product_id === productId && item.isTakeaway === isTakeaway) {
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      });
 
-    setCartItems(newItems);
-    localStorage.setItem('cart', JSON.stringify(newItems));
-    setTotalAmount(calculateTotal(newItems));
+      // Cập nhật state và localStorage
+      setCartItems(newItems);
+      localStorage.setItem('cart', JSON.stringify(newItems));
+      
+      // Tính lại tổng tiền
+      const newTotal = calculateTotal(newItems);
+      setTotalAmount(newTotal);
+
+      // Trigger event để cập nhật UI
+      window.dispatchEvent(new Event('cartUpdated'));
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      alert('Có lỗi xảy ra khi cập nhật số lượng');
+    }
   };
 
 // Header.js
@@ -168,51 +198,74 @@ const placeOrder = async () => {
   }
 };
 
-// Add handleTakeawaySubmit function
+// Thêm các hàm validation
+const isValidName = (name) => {
+  return name.trim().length >= 2;
+};
+
+const isValidPhone = (phone) => {
+  const phoneRegex = /^0\d{9}$/;
+  return phoneRegex.test(phone);
+};
+
+// Cập nhật hàm handleTakeawaySubmit
 const handleTakeawaySubmit = async () => {
   try {
-    // Kiểm tra thông tin bắt buộc
-    if (!takeawayForm.customerName || !takeawayForm.phone || !takeawayForm.address) {
-      alert('Vui lòng điền đầy đủ thông tin');
+    // Validate thông tin
+    if (!takeawayForm.customerName || takeawayForm.customerName.length < 2) {
+      alert('Tên khách hàng phải có ít nhất 2 ký tự');
       return;
     }
 
+    if (!takeawayForm.phone || !/^0\d{9}$/.test(takeawayForm.phone)) {
+      alert('Số điện thoại không hợp lệ (phải có 10 chữ số và bắt đầu bằng số 0)');
+      return;
+    }
+
+    // Lấy các món mang về từ giỏ hàng
+    const takeawayItems = cartItems.filter(item => item.isTakeaway);
+    
     const orderData = {
       customer_name: takeawayForm.customerName,
       customer_phone: takeawayForm.phone,
-      address: takeawayForm.address, // Thêm địa chỉ vào dữ liệu gửi đi
-      items: getMergedTakeawayItems().map(item => ({
+      address: takeawayForm.address || 'Mang về',
+      items: takeawayItems.map(item => ({
         product_id: item.product_id,
         quantity: item.quantity,
-        unit_price: item.price
+        unit_price: parseFloat(item.price)
       })),
-      total_amount: calculateTotal(getMergedTakeawayItems())
+      total_amount: calculateTakeawayTotal(takeawayItems)
     };
 
-    const response = await axios.post(
-      'http://localhost:5000/api/takeaway-orders/create',
-      orderData
-    );
+    const response = await axios.post('http://localhost:5000/api/takeaway-orders/create', orderData);
 
     if (response.data.success) {
-      localStorage.removeItem('cart');
-      setCartItems([]);
+      // Chỉ xóa các món mang về khỏi giỏ hàng
+      const newCartItems = cartItems.filter(item => !item.isTakeaway);
+      setCartItems(newCartItems);
+      localStorage.setItem('cart', JSON.stringify(newCartItems));
+      
+      // Reset form
       setTakeawayForm({
         customerName: '',
         phone: '',
-        address: '' // Reset form địa chỉ
+        address: ''
       });
+      
       setShowTakeaway(false);
-      alert('Đặt hàng thành công!');
+      alert('Đặt hàng mang về thành công!');
     }
   } catch (error) {
-    console.error('Error creating takeaway order:', error);
+    console.error('Error placing takeaway order:', error);
     alert('Có lỗi xảy ra khi đặt hàng');
   }
 };
 
   const formatPrice = (price) => {
-    return parseFloat(price).toFixed(3) + 'đ';
+    if (typeof price === 'string') {
+      price = parseFloat(price.replace(/[^\d.-]/g, ''));
+    }
+    return price.toFixed(3) + 'đ';
   };
 
   const handleSearch = (e) => {
@@ -237,6 +290,32 @@ const handleTakeawaySubmit = async () => {
       }
       return acc;
     }, []);
+  };
+
+  // Tính tổng cho đơn ăn tại chỗ
+  const calculateDineInTotal = (items) => {
+    if (!Array.isArray(items)) return 0;
+    return items
+      .filter(item => !item.isTakeaway)
+      .reduce((sum, item) => {
+        const price = typeof item.price === 'string' ? 
+          parseFloat(item.price.replace(/[^\d.-]/g, '')) : 
+          parseFloat(item.price);
+        return sum + (price * item.quantity);
+      }, 0);
+  };
+
+  // Tính tổng cho đơn mang về
+  const calculateTakeawayTotal = (items) => {
+    if (!Array.isArray(items)) return 0;
+    return items
+      .filter(item => item.isTakeaway)
+      .reduce((sum, item) => {
+        const price = typeof item.price === 'string' ? 
+          parseFloat(item.price.replace(/[^\d.-]/g, '')) : 
+          parseFloat(item.price);
+        return sum + (price * item.quantity);
+      }, 0);
   };
 
   return (
@@ -272,7 +351,14 @@ const handleTakeawaySubmit = async () => {
                 </Link>
               </li>
               <li className={`nav-item ${path === '/about' ? 'active' : ''}`}>
-                <Link className="nav-link" to="/about">
+                <Link 
+                  className="nav-link" 
+                  to="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    callStaff();
+                  }}
+                >
                   Thêm {path === '/about' && <span className="sr-only">(current)</span>}
                 </Link>
               </li>
@@ -321,65 +407,60 @@ const handleTakeawaySubmit = async () => {
         </nav>
       </div>
 
-      {/* Modal giỏ hàng */}
+      {/* Modal giỏ hàng ăn tại chỗ */}
       {showCart && (
         <div className="cart-modal">
           <div className="cart-modal-content">
             <div className="cart-modal-header">
-              <h5>Giỏ hàng của bạn</h5>
+              <h5>Giỏ hàng của bạn (Ăn tại chỗ)</h5>
               <button className="close-btn" onClick={() => setShowCart(false)}>×</button>
             </div>
             
             <div className="cart-modal-body">
-              {cartItems.filter(item => !item.isTakeaway).map(item => (
-                <div key={`table-${item.product_id}`} className="cart-item">
-                  <img src={item.image_url} alt={item.name} />
-                  <div className="cart-item-info">
-                    <h6>{item.name}</h6>
-                    <p className="price">{formatPrice(item.price)}</p>
-                  </div>
-                  <div className="quantity-controls">
+              {/* Chỉ hiển thị món ăn tại chỗ */}
+              {cartItems
+                .filter(item => !item.isTakeaway)
+                .map(item => (
+                  <div key={`table-${item.product_id}`} className="cart-item">
+                    <img src={item.image_url} alt={item.name} />
+                    <div className="cart-item-info">
+                      <h6>{item.name}</h6>
+                      <p className="price">{formatPrice(item.price)}</p>
+                      <div className="quantity-controls">
+                        <button 
+                          onClick={() => updateQuantity(item.product_id, item.quantity - 1, false)}
+                          disabled={item.quantity <= 1}
+                        >-</button>
+                        <span>{item.quantity}</span>
+                        <button 
+                          onClick={() => updateQuantity(item.product_id, item.quantity + 1, false)}
+                        >+</button>
+                      </div>
+                    </div>
                     <button 
-                      onClick={() => updateQuantity(item.product_id, item.quantity - 1, false)}
-                      className="quantity-btn"
-                      disabled={item.quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="quantity">{item.quantity}</span>
-                    <button 
-                      onClick={() => updateQuantity(item.product_id, item.quantity + 1, false)}
-                      className="quantity-btn"
-                    >
-                      +
-                    </button>
+                      className="remove-btn"
+                      onClick={() => removeFromCart(item.product_id, false)}
+                    >×</button>
                   </div>
-                  <button 
-                    className="remove-btn"
-                    onClick={() => removeFromCart(item.product_id, false)}
-                  >×</button>
-                </div>
-              ))}
+                ))}
             </div>
             
             <div className="cart-modal-footer">
               <div className="cart-total">
                 <h6>Tổng cộng:</h6>
-                <p>{formatPrice(totalAmount)}</p>
+                <p>{formatPrice(calculateDineInTotal(cartItems))}</p>
               </div>
               <button 
                 className="checkout-btn"
                 onClick={placeOrder}
-                disabled={!Array.isArray(cartItems) || cartItems.length === 0}
-              >
-                Đặt hàng
-              </button>
+                disabled={!cartItems.some(item => !item.isTakeaway)}
+              >Đặt món</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add takeaway modal */}
+      {/* Modal đơn mang về */}
       {showTakeaway && (
         <div className="cart-modal">
           <div className="cart-modal-content">
@@ -389,76 +470,71 @@ const handleTakeawaySubmit = async () => {
             </div>
             
             <div className="cart-modal-body">
-              {/* Thay đổi từ cartItems.filter sang getMergedTakeawayItems */}
-              {getMergedTakeawayItems().map(item => (
-                <div key={`takeaway-${item.product_id}`} className="cart-item">
-                  <img src={item.image_url} alt={item.name} />
-                  <div className="cart-item-info">
-                    <h6>{item.name}</h6>
-                    <p className="price">{formatPrice(item.price)}</p>
-                  </div>
-                  <div className="quantity-controls">
+              {/* Chỉ hiển thị món mang về */}
+              {cartItems
+                .filter(item => item.isTakeaway)
+                .map(item => (
+                  <div key={`takeaway-${item.product_id}`} className="cart-item">
+                    <img src={item.image_url} alt={item.name} />
+                    <div className="cart-item-info">
+                      <h6>{item.name}</h6>
+                      <p className="price">{formatPrice(item.price)}</p>
+                    </div>
+                    <div className="quantity-controls">
+                      <button 
+                        onClick={() => updateQuantity(item.product_id, item.quantity - 1, true)}
+                        disabled={item.quantity <= 1}
+                      >-</button>
+                      <span>{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.product_id, item.quantity + 1, true)}
+                      >+</button>
+                    </div>
                     <button 
-                      onClick={() => updateQuantity(item.product_id, item.quantity - 1, true)}
-                      className="quantity-btn"
-                      disabled={item.quantity <= 1}
-                    >
-                      -
-                    </button>
-                    <span className="quantity">{item.quantity}</span>
-                    <button 
-                      onClick={() => updateQuantity(item.product_id, item.quantity + 1, true)}
-                      className="quantity-btn"
-                    >
-                      +
-                    </button>
+                      className="remove-btn"
+                      onClick={() => removeFromCart(item.product_id, true)}
+                    >×</button>
                   </div>
-                  <button 
-                    className="remove-btn"
-                    onClick={() => removeFromCart(item.product_id, true)}
-                  >×</button>
-                </div>
-              ))}
-              
-              {/* Form thông tin khách hàng giữ nguyên */}
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                handleTakeawaySubmit();
-              }}>
+                ))}
+
+              {/* Form thông tin khách hàng */}
+              <form className="takeaway-form">
                 <div className="form-group">
-                  <label>Họ tên:</label>
+                  <label>Tên khách hàng:</label>
                   <input
                     type="text"
-                    required
                     value={takeawayForm.customerName}
                     onChange={(e) => setTakeawayForm({
                       ...takeawayForm,
                       customerName: e.target.value
                     })}
+                    placeholder="Nhập tên (ít nhất 2 ký tự)"
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label>Số điện thoại:</label>
                   <input
                     type="tel"
-                    required
-                    pattern="[0-9]{10}"
                     value={takeawayForm.phone}
                     onChange={(e) => setTakeawayForm({
                       ...takeawayForm,
                       phone: e.target.value
                     })}
+                    placeholder="Nhập SĐT (10 số, bắt đầu bằng 0)"
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label>Địa chỉ:</label>
-                  <textarea
-                    required
+                  <input
+                    type="text"
                     value={takeawayForm.address}
                     onChange={(e) => setTakeawayForm({
                       ...takeawayForm,
                       address: e.target.value
                     })}
+                    placeholder="Nhập địa chỉ (để trống nếu lấy tại quán)"
                   />
                 </div>
               </form>
@@ -467,15 +543,14 @@ const handleTakeawaySubmit = async () => {
             <div className="cart-modal-footer">
               <div className="cart-total">
                 <h6>Tổng cộng:</h6>
-                <p>{formatPrice(calculateTotal(getMergedTakeawayItems()))}</p>
+                {/* Chỉ tính tổng tiền món mang về */}
+                <p>{formatPrice(calculateTakeawayTotal(cartItems))}</p>
               </div>
               <button 
                 className="checkout-btn"
                 onClick={handleTakeawaySubmit}
                 disabled={!cartItems.some(item => item.isTakeaway)}
-              >
-                Xác nhận đặt hàng
-              </button>
+              >Xác nhận đặt hàng</button>
             </div>
           </div>
         </div>
