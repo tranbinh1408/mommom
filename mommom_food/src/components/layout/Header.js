@@ -25,6 +25,14 @@ const Header = () => {
     items: []
   });
 
+  // Thêm state để quản lý trạng thái menu mobile
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Hàm toggle menu
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   useEffect(() => {
     const loadCart = () => {
       const savedCart = localStorage.getItem('cart');
@@ -318,264 +326,299 @@ const handleTakeawaySubmit = async () => {
       }, 0);
   };
 
+  // Tính tổng số lượng món cho từng loại đơn
+  const getDineInCount = () => {
+    return cartItems
+      .filter(item => !item.isTakeaway)
+      .reduce((sum, item) => sum + item.quantity, 0);
+  };
+
+  const getTakeawayCount = () => {
+    return cartItems
+      .filter(item => item.isTakeaway)
+      .reduce((sum, item) => sum + item.quantity, 0);
+  };
+
   return (
-    <header className="header_section">
-      <div className="container">
-        <nav className="navbar navbar-expand-lg custom_nav-container">
-          <Link className="navbar-brand" to="/">
-            <span>Mommom food</span>
-          </Link>
+    <>
+      <header className="header_section">
+        <div className="container">
+          <nav className="navbar navbar-expand-lg custom_nav-container">
+            <Link className="navbar-brand" to="/">
+              <span>Mommom food</span>
+            </Link>
 
-          <button 
-            className="navbar-toggler" 
-            type="button" 
-            data-toggle="collapse" 
-            data-target="#navbarSupportedContent" 
-            aria-controls="navbarSupportedContent" 
-            aria-expanded="false" 
-            aria-label="Toggle navigation"
-          >
-            <span className=""> </span>
-          </button>
+            <button 
+              className={`navbar-toggler ${isMenuOpen ? 'active' : ''}`}
+              type="button" 
+              onClick={toggleMenu}
+              aria-label="Toggle navigation"
+            >
+              <span className="toggler-icon"></span>
+            </button>
 
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav mx-auto">
-              <li className={`nav-item ${path === '/' ? 'active' : ''}`}>
-                <Link className="nav-link" to="/">
-                  Trang chủ {path === '/' && <span className="sr-only">(current)</span>}
+            <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarSupportedContent">
+              <ul className="navbar-nav mx-auto">
+                <li className={`nav-item ${path === '/' ? 'active' : ''}`}>
+                  <Link className="nav-link" to="/">
+                    Trang chủ {path === '/' && <span className="sr-only">(current)</span>}
+                  </Link>
+                </li>
+                <li className={`nav-item ${path === '/menu' ? 'active' : ''}`}>
+                  <Link className="nav-link" to="/menu">
+                    Thực đơn {path === '/menu' && <span className="sr-only">(current)</span>}
+                  </Link>
+                </li>
+                <li className={`nav-item ${path === '/about' ? 'active' : ''}`}>
+                  <Link 
+                    className="nav-link" 
+                    to="#" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      callStaff();
+                    }}
+                  >
+                    Thêm {path === '/about' && <span className="sr-only">(current)</span>}
+                  </Link>
+                </li>
+                {/* <li className={`nav-item ${path === '/book' ? 'active' : ''}`}>
+                  <Link className="nav-link" to="/book">
+                    Đặt bàn {path === '/book' && <span className="sr-only">(current)</span>}
+                  </Link>
+                </li> */}
+              </ul>
+              <div className="user_option">
+                {/* Thay đổi thành Link để chuyển đến trang đăng nhập admin */}
+                <Link to="/admin/login" className="user_link">
+                  <i className="fa fa-user" aria-hidden="true"></i>
                 </Link>
-              </li>
-              <li className={`nav-item ${path === '/menu' ? 'active' : ''}`}>
-                <Link className="nav-link" to="/menu">
-                  Thực đơn {path === '/menu' && <span className="sr-only">(current)</span>}
-                </Link>
-              </li>
-              <li className={`nav-item ${path === '/about' ? 'active' : ''}`}>
-                <Link 
-                  className="nav-link" 
-                  to="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    callStaff();
-                  }}
-                >
-                  Thêm {path === '/about' && <span className="sr-only">(current)</span>}
-                </Link>
-              </li>
-              {/* <li className={`nav-item ${path === '/book' ? 'active' : ''}`}>
-                <Link className="nav-link" to="/book">
-                  Đặt bàn {path === '/book' && <span className="sr-only">(current)</span>}
-                </Link>
-              </li> */}
-            </ul>
-            <div className="user_option">
-              {/* Thay đổi thành Link để chuyển đến trang đăng nhập admin */}
-              <Link to="/admin/login" className="user_link">
-                <i className="fa fa-user" aria-hidden="true"></i>
-              </Link>
-              <div className="cart_link" onClick={() => setShowCart(true)}>
-                <i className="fa fa-shopping-cart"></i>
-                {Array.isArray(cartItems) && cartItems.filter(item => !item.isTakeaway).length > 0 && (
-                  <span className="cart-badge">
-                    {cartItems
-                      .filter(item => !item.isTakeaway)
-                      .reduce((sum, item) => sum + item.quantity, 0)}
-                  </span>
-                )}
-              </div>
-              <form className="form-inline" onSubmit={handleSearch}>
-                <div className="search-container">
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Tìm món ăn..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <button className="btn nav_search-btn" type="submit">
-                    <i className="fa fa-search" aria-hidden="true"></i>
-                  </button>
+                <div className="cart_link" onClick={() => setShowCart(true)}>
+                  <i className="fa fa-shopping-cart"></i>
+                  {Array.isArray(cartItems) && cartItems.filter(item => !item.isTakeaway).length > 0 && (
+                    <span className="cart-badge">
+                      {cartItems
+                        .filter(item => !item.isTakeaway)
+                        .reduce((sum, item) => sum + item.quantity, 0)}
+                    </span>
+                  )}
                 </div>
-              </form>
-              <Link to="#" className="order_online" onClick={() => setShowTakeaway(true)}>
-                Đặt mang về ({cartItems
-                  .filter(item => item.isTakeaway)
-                  .reduce((sum, item) => sum + item.quantity, 0)})
-              </Link>
+                <form className="form-inline" onSubmit={handleSearch}>
+                  <div className="search-container">
+                    <input
+                      type="text"
+                      className="search-input"
+                      placeholder="Tìm món ăn..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button className="btn nav_search-btn" type="submit">
+                      <i className="fa fa-search" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </form>
+                <Link to="#" className="order_online" onClick={() => setShowTakeaway(true)}>
+                  Đặt mang về ({cartItems
+                    .filter(item => item.isTakeaway)
+                    .reduce((sum, item) => sum + item.quantity, 0)})
+                </Link>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        {/* Modal giỏ hàng ăn tại chỗ */}
+        {showCart && (
+          <div className="cart-modal">
+            <div className="cart-modal-content">
+              <div className="cart-modal-header">
+                <h5>Giỏ hàng của bạn (Ăn tại chỗ)</h5>
+                <button className="close-btn" onClick={() => setShowCart(false)}>×</button>
+              </div>
+              
+              <div className="cart-modal-body">
+                {/* Chỉ hiển thị món ăn tại chỗ */}
+                {cartItems
+                  .filter(item => !item.isTakeaway)
+                  .map(item => (
+                    <div key={`table-${item.product_id}`} className="cart-item">
+                      <img src={item.image_url} alt={item.name} />
+                      <div className="cart-item-info">
+                        <h6>{item.name}</h6>
+                        <p className="price">{formatPrice(item.price)}</p>
+                        <div className="quantity-controls">
+                          <button 
+                            onClick={() => updateQuantity(item.product_id, item.quantity - 1, false)}
+                            disabled={item.quantity <= 1}
+                          >-</button>
+                          <span>{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQuantity(item.product_id, item.quantity + 1, false)}
+                          >+</button>
+                        </div>
+                      </div>
+                      <button 
+                        className="remove-btn"
+                        onClick={() => removeFromCart(item.product_id, false)}
+                      >×</button>
+                    </div>
+                  ))}
+              </div>
+              
+              <div className="cart-modal-footer">
+                <div className="cart-total">
+                  <h6>Tổng cộng:</h6>
+                  <p>{formatPrice(calculateDineInTotal(cartItems))}</p>
+                </div>
+                <button 
+                  className="checkout-btn"
+                  onClick={placeOrder}
+                  disabled={!cartItems.some(item => !item.isTakeaway)}
+                >Đặt món</button>
+              </div>
             </div>
           </div>
-        </nav>
-      </div>
+        )}
 
-      {/* Modal giỏ hàng ăn tại chỗ */}
-      {showCart && (
-        <div className="cart-modal">
-          <div className="cart-modal-content">
-            <div className="cart-modal-header">
-              <h5>Giỏ hàng của bạn (Ăn tại chỗ)</h5>
-              <button className="close-btn" onClick={() => setShowCart(false)}>×</button>
-            </div>
-            
-            <div className="cart-modal-body">
-              {/* Chỉ hiển thị món ăn tại chỗ */}
-              {cartItems
-                .filter(item => !item.isTakeaway)
-                .map(item => (
-                  <div key={`table-${item.product_id}`} className="cart-item">
-                    <img src={item.image_url} alt={item.name} />
-                    <div className="cart-item-info">
-                      <h6>{item.name}</h6>
-                      <p className="price">{formatPrice(item.price)}</p>
+        {/* Modal đơn mang về */}
+        {showTakeaway && (
+          <div className="cart-modal">
+            <div className="cart-modal-content">
+              <div className="cart-modal-header">
+                <h5>Đơn hàng mang về</h5>
+                <button className="close-btn" onClick={() => setShowTakeaway(false)}>×</button>
+              </div>
+              
+              <div className="cart-modal-body">
+                {/* Chỉ hiển thị món mang về */}
+                {cartItems
+                  .filter(item => item.isTakeaway)
+                  .map(item => (
+                    <div key={`takeaway-${item.product_id}`} className="cart-item">
+                      <img src={item.image_url} alt={item.name} />
+                      <div className="cart-item-info">
+                        <h6>{item.name}</h6>
+                        <p className="price">{formatPrice(item.price)}</p>
+                      </div>
                       <div className="quantity-controls">
                         <button 
-                          onClick={() => updateQuantity(item.product_id, item.quantity - 1, false)}
+                          onClick={() => updateQuantity(item.product_id, item.quantity - 1, true)}
                           disabled={item.quantity <= 1}
                         >-</button>
                         <span>{item.quantity}</span>
                         <button 
-                          onClick={() => updateQuantity(item.product_id, item.quantity + 1, false)}
+                          onClick={() => updateQuantity(item.product_id, item.quantity + 1, true)}
                         >+</button>
                       </div>
+                      <button 
+                        className="remove-btn"
+                        onClick={() => removeFromCart(item.product_id, true)}
+                      >×</button>
                     </div>
-                    <button 
-                      className="remove-btn"
-                      onClick={() => removeFromCart(item.product_id, false)}
-                    >×</button>
+                  ))}
+
+                {/* Form thông tin khách hàng */}
+                <form className="takeaway-form">
+                  <div className="form-group">
+                    <label>Tên khách hàng:</label>
+                    <input
+                      type="text"
+                      value={takeawayForm.customerName}
+                      onChange={(e) => setTakeawayForm({
+                        ...takeawayForm,
+                        customerName: e.target.value
+                      })}
+                      placeholder="Nhập tên (ít nhất 2 ký tự)"
+                      required
+                    />
                   </div>
-                ))}
-            </div>
-            
-            <div className="cart-modal-footer">
-              <div className="cart-total">
-                <h6>Tổng cộng:</h6>
-                <p>{formatPrice(calculateDineInTotal(cartItems))}</p>
+                  <div className="form-group">
+                    <label>Số điện thoại:</label>
+                    <input
+                      type="tel"
+                      value={takeawayForm.phone}
+                      onChange={(e) => setTakeawayForm({
+                        ...takeawayForm,
+                        phone: e.target.value
+                      })}
+                      placeholder="Nhập SĐT (10 số, bắt đầu bằng 0)"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Địa chỉ:</label>
+                    <input
+                      type="text"
+                      value={takeawayForm.address}
+                      onChange={(e) => setTakeawayForm({
+                        ...takeawayForm,
+                        address: e.target.value
+                      })}
+                      placeholder="Nhập địa chỉ (để trống nếu lấy tại quán)"
+                    />
+                  </div>
+                </form>
               </div>
-              <button 
-                className="checkout-btn"
-                onClick={placeOrder}
-                disabled={!cartItems.some(item => !item.isTakeaway)}
-              >Đặt món</button>
+              
+              <div className="cart-modal-footer">
+                <div className="cart-total">
+                  <h6>Tổng cộng:</h6>
+                  {/* Chỉ tính tổng tiền món mang về */}
+                  <p>{formatPrice(calculateTakeawayTotal(cartItems))}</p>
+                </div>
+                <button 
+                  className="checkout-btn"
+                  onClick={handleTakeawaySubmit}
+                  disabled={!cartItems.some(item => item.isTakeaway)}
+                >Xác nhận đặt hàng</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Modal đơn mang về */}
-      {showTakeaway && (
-        <div className="cart-modal">
-          <div className="cart-modal-content">
-            <div className="cart-modal-header">
-              <h5>Đơn hàng mang về</h5>
-              <button className="close-btn" onClick={() => setShowTakeaway(false)}>×</button>
-            </div>
-            
-            <div className="cart-modal-body">
-              {/* Chỉ hiển thị món mang về */}
-              {cartItems
-                .filter(item => item.isTakeaway)
-                .map(item => (
-                  <div key={`takeaway-${item.product_id}`} className="cart-item">
-                    <img src={item.image_url} alt={item.name} />
-                    <div className="cart-item-info">
-                      <h6>{item.name}</h6>
-                      <p className="price">{formatPrice(item.price)}</p>
-                    </div>
-                    <div className="quantity-controls">
-                      <button 
-                        onClick={() => updateQuantity(item.product_id, item.quantity - 1, true)}
-                        disabled={item.quantity <= 1}
-                      >-</button>
-                      <span>{item.quantity}</span>
-                      <button 
-                        onClick={() => updateQuantity(item.product_id, item.quantity + 1, true)}
-                      >+</button>
-                    </div>
-                    <button 
-                      className="remove-btn"
-                      onClick={() => removeFromCart(item.product_id, true)}
-                    >×</button>
-                  </div>
-                ))}
-
-              {/* Form thông tin khách hàng */}
-              <form className="takeaway-form">
-                <div className="form-group">
-                  <label>Tên khách hàng:</label>
-                  <input
-                    type="text"
-                    value={takeawayForm.customerName}
-                    onChange={(e) => setTakeawayForm({
-                      ...takeawayForm,
-                      customerName: e.target.value
-                    })}
-                    placeholder="Nhập tên (ít nhất 2 ký tự)"
-                    required
-                  />
+        {/* Add search results dropdown */}
+        {showSearchResults && searchResults.length > 0 && (
+          <div className="search-results">
+            {searchResults.map(product => (
+              <Link 
+                key={product.product_id}
+                to={`/menu?product=${product.product_id}`}
+                className="search-result-item"
+                onClick={() => setShowSearchResults(false)}
+              >
+                <img src={product.image_url} alt={product.name} />
+                <div>
+                  <h6>{product.name}</h6>
+                  <p>{formatPrice(product.price)}</p>
                 </div>
-                <div className="form-group">
-                  <label>Số điện thoại:</label>
-                  <input
-                    type="tel"
-                    value={takeawayForm.phone}
-                    onChange={(e) => setTakeawayForm({
-                      ...takeawayForm,
-                      phone: e.target.value
-                    })}
-                    placeholder="Nhập SĐT (10 số, bắt đầu bằng 0)"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Địa chỉ:</label>
-                  <input
-                    type="text"
-                    value={takeawayForm.address}
-                    onChange={(e) => setTakeawayForm({
-                      ...takeawayForm,
-                      address: e.target.value
-                    })}
-                    placeholder="Nhập địa chỉ (để trống nếu lấy tại quán)"
-                  />
-                </div>
-              </form>
-            </div>
-            
-            <div className="cart-modal-footer">
-              <div className="cart-total">
-                <h6>Tổng cộng:</h6>
-                {/* Chỉ tính tổng tiền món mang về */}
-                <p>{formatPrice(calculateTakeawayTotal(cartItems))}</p>
-              </div>
-              <button 
-                className="checkout-btn"
-                onClick={handleTakeawaySubmit}
-                disabled={!cartItems.some(item => item.isTakeaway)}
-              >Xác nhận đặt hàng</button>
-            </div>
+              </Link>
+            ))}
           </div>
-        </div>
-      )}
+        )}
+      </header>
 
-      {/* Add search results dropdown */}
-      {showSearchResults && searchResults.length > 0 && (
-        <div className="search-results">
-          {searchResults.map(product => (
-            <Link 
-              key={product.product_id}
-              to={`/menu?product=${product.product_id}`}
-              className="search-result-item"
-              onClick={() => setShowSearchResults(false)}
-            >
-              <img src={product.image_url} alt={product.name} />
-              <div>
-                <h6>{product.name}</h6>
-                <p>{formatPrice(product.price)}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </header>
+      {/* Mobile Bottom Navigation - Chỉ hiển thị khi có món trong giỏ */}
+      <div className="mobile-cart-nav d-lg-none">
+        {getDineInCount() > 0 && (
+          <div 
+            className="cart-btn dine-in"
+            onClick={() => setShowCart(true)}
+          >
+            Giỏ hàng tại bàn
+            <span className="cart-badge">{getDineInCount()}</span>
+          </div>
+        )}
+        
+        {getTakeawayCount() > 0 && (
+          <div 
+            className="cart-btn takeaway"
+            onClick={() => setShowTakeaway(true)}
+          >
+            Giỏ hàng mang về
+            <span className="cart-badge">{getTakeawayCount()}</span>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

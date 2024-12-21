@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 const Products = ({ products, api, fetchData }) => {
   const [showModal, setShowModal] = useState(false);
@@ -23,9 +24,8 @@ const Products = ({ products, api, fetchData }) => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      // Add /api prefix to match backend route
       const response = await api.get('/api/categories');
-      console.log('Categories response:', response);
+      console.log('Categories response:', response.data);
       if (response.data.success) {
         setCategories(response.data.data);
       }

@@ -535,3 +535,180 @@
   font-size: 13px;
   color: #ffbe33;
 }
+
+/* Mobile Menu Styles */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: #222831;
+    padding: 80px 20px 20px;
+    transition: all 0.3s ease;
+    z-index: 99;
+  }
+
+  .navbar-collapse.show {
+    right: 0;
+  }
+
+  .custom_nav-container .navbar-nav {
+    padding-left: 0;
+    flex-direction: column;
+  }
+
+  .custom_nav-container .navbar-nav .nav-item {
+    margin: 10px 0;
+  }
+
+  .user_option {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  /* Hamburger Menu Button */
+  .navbar-toggler {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    padding: 0;
+    border: none;
+    outline: none;
+    width: 35px;
+    height: 35px;
+    background: transparent;
+  }
+
+  .navbar-toggler .toggler-icon {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .navbar-toggler .toggler-icon::before,
+  .navbar-toggler .toggler-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    transition: all 0.3s;
+  }
+
+  .navbar-toggler .toggler-icon::before {
+    top: -8px;
+  }
+
+  .navbar-toggler .toggler-icon::after {
+    bottom: -8px;
+  }
+
+  /* Active State */
+  .navbar-toggler.active .toggler-icon {
+    background: transparent;
+  }
+
+  .navbar-toggler.active .toggler-icon::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .navbar-toggler.active .toggler-icon::after {
+    bottom: 0;
+    transform: rotate(-45deg);
+  }
+
+  /* Cart Modal Responsive */
+  .cart-modal {
+    width: 100%;
+  }
+
+  .cart-modal-content {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Search Bar Responsive */
+  .search-container {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  /* Order Online Button */
+  .order_online {
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  /* Mobile Bottom Navigation */
+  .mobile-cart-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    z-index: 999;
+  }
+
+  .mobile-cart-nav .cart-btn {
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    position: relative;
+    text-align: center;
+  }
+
+  .mobile-cart-nav .cart-btn.dine-in {
+    background: #ffbe33;
+    color: #fff;
+    width: 100%; /* Đảm bảo nút chiếm hết chiều rộng khi chỉ có 1 nút */
+  }
+
+  .mobile-cart-nav .cart-btn.takeaway {
+    background: #28a745;
+    color: #fff;
+    width: 100%; /* Đảm bảo nút chiếm hết chiều rộng khi chỉ có 1 nút */
+  }
+
+  /* Điều chỉnh vị trí badge khi chỉ có 1 nút */
+  .mobile-cart-nav .cart-badge {
+    position: absolute;
+    top: -8px;
+    right: 20%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    background: #fff;
+    color: #222831;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  /* Thêm padding bottom cho content để không bị che bởi bottom nav */
+  .food_section {
+    padding-bottom: 100px !important;
+  }
+}

@@ -163,40 +163,180 @@
 
 /* Modal Styles */
 .modal-content {
-  background: #2d2d2d;
-  color: #f8f8f8;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.modal-header .btn-close {
-  display: none;
-}
-
-.modal-header,
-.modal-footer {
-  background-color: #222222;
+  background: #ffffff;
+  color: #333333;
   border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  max-height: 90vh;
+  width: 400px;
+  margin: 0 auto;
 }
 
-.modal-title {
-  color: #ffffff;
+.modal-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 25px;
+  border-radius: 15px 15px 0 0;
+}
+
+.modal-header h5 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #222831;
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0 8px;
+  transition: all 0.2s;
+}
+
+.modal-header button:hover {
+  color: #222831;
+}
+
+/* Product Info Styles */
+.product-info {
+  padding: 15px;
+  text-align: center;
+}
+
+.product-info img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
 }
 
 .product-name {
-  color: #ffffff;
-  font-size: 18px;
+  color: #222831;
+  font-size: 1.25rem;
+  font-weight: 600;
   margin: 10px 0;
 }
 
 .product-price {
   color: #ffbe33;
-  font-size: 16px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 8px 0;
 }
 
 .total-amount {
-  color: #ffbe33;
+  color: #222831;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+/* Quantity Selector Styles */
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.quantity-selector button {
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: #f8f9fa;
+  color: #222831;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.quantity-selector button:hover {
+  background: #ffbe33;
+  color: #ffffff;
+}
+
+.quantity {
   font-size: 20px;
-  font-weight: bold;
+  color: #222831;
+  font-weight: 600;
+  min-width: 35px;
+  text-align: center;
+}
+
+/* Modal Footer Styles */
+.modal-footer {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.modal-footer button {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+/* Nút đặt tại bàn */
+.modal-footer button:first-child {
+  background: #ffbe33;
+  color: #ffffff;
+}
+
+.modal-footer button:first-child:hover {
+  background: #e69c00;
+}
+
+/* Nút đặt mang về */
+.modal-footer button:nth-child(2) {
+  background: #28a745;
+  color: #ffffff;
+}
+
+.modal-footer button:nth-child(2):hover {
+  background: #218838;
+}
+
+/* Nút đóng */
+.modal-footer button:last-child {
+  flex: 0.5;
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.modal-footer button:last-child:hover {
+  background: #e9ecef;
+  color: #333;
+}
+
+/* Animation cho modal */
+.modal {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Button Styles */
@@ -222,48 +362,4 @@
 
 .food_section .btn-box a:hover {
   background-color: #e69c00;
-}
-/* Nút đặt onl */
-.modal-footer {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 20px 0;
-  border-top: 1px solid #eee;
-  gap: 12px;
-}
-
-/* Button base styles */
-.modal-footer button {
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 500;
-  border: none;
-  transition: all 0.2s ease;
-  font-size: 14px;
-}
-
-/* Order at table button */
-.modal-footer button:first-child {
-  background: #ffc107;
-  color: #000;
-}
-
-/* Take away button */
-.modal-footer button:nth-child(2) {
-  background: #28a745;
-  color: white;
-}
-
-/* Close button */
-.modal-footer button:last-child {
-  background: #f8f9fa;
-  color: #495057;
-  border: 1px solid #ddd;
-  margin-left: auto;
-}
-
-.modal-footer button:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
 }
