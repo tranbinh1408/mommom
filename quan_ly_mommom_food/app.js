@@ -11,6 +11,7 @@ const tableRoutes = require('./routes/tableRoutes');
 const userRoutes = require('./routes/userRoutes');
 const takeawayOrderRoutes = require('./routes/takeawayOrderRoutes');
 const notifyRoutes = require('./routes/notifyRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 // Import middleware
 const auth = require('./middleware/auth');
@@ -35,6 +36,18 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Thêm logging middleware trước khi định nghĩa routes
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
+
+// Thêm logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // API Routes
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
@@ -42,6 +55,7 @@ app.use('/api/tables', tableRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/takeaway-orders', takeawayOrderRoutes);
 app.use('/api/notify', notifyRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Test route
 app.get('/', (req, res) => {
@@ -50,14 +64,16 @@ app.get('/', (req, res) => {
   });
 });
 
-// Error handling middleware
+// Sửa lại error handling middleware
 app.use((req, res, next) => {
+  console.log('404 Not Found:', req.method, req.path);
   const error = new Error('Not Found');
   error.status = 404;
   next(error);
 });
 
 app.use((error, req, res, next) => {
+  console.error('Error:', error);
   res.status(error.status || 500);
   res.json({
     success: false,
