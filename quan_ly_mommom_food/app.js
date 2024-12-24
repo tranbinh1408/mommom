@@ -20,7 +20,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:3000', // URL của React app
+    origin: ['http://localhost:3000', 'https://zealous-celebration-production.up.railway.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -57,16 +57,16 @@ app.use('/api/takeaway-orders', takeawayOrderRoutes);
 app.use('/api/notify', notifyRoutes);
 app.use('/api/stats', statsRoutes);
 
-// Test route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Welcome to Mommom Food API'
+// Then serve frontend
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../mommom_food/build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../mommom_food/build/index.html'));
   });
-});
+}
 
-// Sửa lại error handling middleware
+// Error handling last
 app.use((req, res, next) => {
-  console.log('404 Not Found:', req.method, req.path);
   const error = new Error('Not Found');
   error.status = 404;
   next(error);
@@ -81,14 +81,6 @@ app.use((error, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? error : {}
   });
 });
-
-// Thêm vào cuối file app.js
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../mommom_food/build')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../mommom_food/build/index.html'));
-  });
-}
 
 // Start server
 const PORT = process.env.PORT || 5000;
