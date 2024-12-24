@@ -20,7 +20,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-    origin: ['http://localhost:3000', 'https://kind-trust-production.up.railway.app'],
+    origin: ['http://localhost:3000', 'https://kind-trust-production.up.railway.app', 'https://mommomfood.binhdev.me'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
