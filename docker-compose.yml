@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MYSQLHOST=containers-us-west-201.railway.app
+      - MYSQLUSER=root
+      - MYSQLPASSWORD=oWNPKISixOPZyqDKNMIOrYXbFYWsGRXb
+      - MYSQLDATABASE=railway
+      - MYSQLPORT=3306
+    depends_on:
+      - mysql-db
+
   mysql-db:
     image: mysql:8.0
     container_name: mommom_food_mysql

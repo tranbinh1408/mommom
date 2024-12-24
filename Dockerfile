@@ -1,11 +1,25 @@
-# Sử dụng hình ảnh Java làm base image
-FROM openjdk:17-jdk-slim
+# Base image
+FROM node:18
 
-# Đặt thư mục làm việc
+# Set working directory
 WORKDIR /app
 
-# Copy file JAR vào container
-COPY target/*.jar app.jar
+# Copy package.json files
+COPY package*.json ./
+COPY mommom_food/package*.json ./mommom_food/
+COPY quan_ly_mommom_food/package*.json ./quan_ly_mommom_food/
 
-# Chạy ứng dụng
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Install dependencies
+RUN npm run install-all
+
+# Copy source code
+COPY . .
+
+# Build frontend
+RUN cd mommom_food && npm run build
+
+# Expose port
+EXPOSE 5000
+
+# Start the app
+CMD ["npm", "start"]
