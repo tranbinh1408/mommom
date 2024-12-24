@@ -158,9 +158,9 @@
 
 Người dùng có thể dễ dàng tìm kiếm, đặt món, và theo dõi đơn hàng của mình trực tuyến. Chủ quán có thể quản lý danh sách món ăn, xử lý đơn hàng, và theo dõi doanh thu một cách hiệu quả.
 ## Công nghệ sử dụng
-**Frontend:** React.js
-**Backend:** Node.js theo mô hình MVC
-**Cơ sở dữ liệu:** MySQL
+- **Frontend:** React.js
+- **Backend:** Node.js theo mô hình MVC
+- **Cơ sở dữ liệu:** MySQL
 ## Giao Diện Mommom_Food
 
 ### Giao Diện Trang Chủ  
