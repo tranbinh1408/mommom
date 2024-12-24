@@ -216,7 +216,7 @@ const Tables = ({ tables, api, fetchData }) => {
             <h3>QR Code cho bàn {selectedTable.table_number}</h3>
             <div className="qr-container">
               <QRCodeSVG 
-                value={`http://localhost:3000/table/${selectedTable.table_number.toLowerCase()}`}
+                value={`https://mommomfood.binhdev.me/table/${selectedTable.table_number.toLowerCase()}`}
                 size={256}
                 level="H"
               />
