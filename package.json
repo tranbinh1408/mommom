@@ -1,17 +1,9 @@
 {
-    "name": "mommom",
+    "name": "mommom-food",
     "version": "1.0.0",
     "scripts": {
-        "start": "concurrently \"cd mommom_food && npm start\" \"cd quan_ly_mommom_food && npm run dev\"",
-        "install-all": "concurrently \"cd mommom_food && npm install\" \"cd quan_ly_mommom_food && npm install\"",
-        "dev": "concurrently \"cd mommom_food && npm start\" \"cd quan_ly_mommom_food && npm run dev\""
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.0"
-    },
-    "dependencies": {
-        "chart.js": "^4.4.7",
-        "node-telegram-bot-api": "^0.66.0",
-        "react-chartjs-2": "^5.2.0"
+        "install-all": "cd mommom_food && npm install && cd ../quan_ly_mommom_food && npm install",
+        "build": "cd mommom_food && npm run build",
+        "start": "cd quan_ly_mommom_food && npm start"
     }
 }

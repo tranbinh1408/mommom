@@ -82,6 +82,14 @@ app.use((error, req, res, next) => {
   });
 });
 
+// Thêm vào cuối file app.js
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../mommom_food/build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../mommom_food/build/index.html'));
+  });
+}
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
