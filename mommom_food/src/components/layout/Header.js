@@ -188,7 +188,7 @@ const placeOrder = async () => {
     console.log('Sending order:', orderData);
 
     const response = await axios.post(
-      'http://localhost:5000/api/orders/create',
+      'https://kind-trust-production.up.railway.app/api/orders/create',
       orderData
     );
 
@@ -245,7 +245,7 @@ const handleTakeawaySubmit = async () => {
       total_amount: calculateTakeawayTotal(takeawayItems)
     };
 
-    const response = await axios.post('http://localhost:5000/api/takeaway-orders/create', orderData);
+    const response = await axios.post('https://kind-trust-production.up.railway.app/api/takeaway-orders/create', orderData);
 
     if (response.data.success) {
       // Chỉ xóa các món mang về khỏi giỏ hàng

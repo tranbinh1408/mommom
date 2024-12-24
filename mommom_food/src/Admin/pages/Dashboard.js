@@ -38,7 +38,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/stats');
+        const response = await axios.get('https://kind-trust-production.up.railway.app/api/stats');
         setStats(response.data);
       } catch (error) {
         console.error('Error fetching stats:', error);

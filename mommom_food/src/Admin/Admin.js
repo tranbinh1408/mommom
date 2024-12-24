@@ -24,7 +24,7 @@ const [error, setError] = useState(null);
 
   // Cấu hình axios
   const api = axios.create({
-    baseURL: 'http://localhost:5000', // Remove /api from here
+    baseURL: 'https://kind-trust-production.up.railway.app', // Remove /api from here
     headers: {
       'Content-Type': 'application/json'
     },

@@ -25,7 +25,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/orders', {
+      const response = await axios.get('https://kind-trust-production.up.railway.app/api/orders', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setOrders(response.data.data);
@@ -41,7 +41,7 @@ const Orders = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${orderId}`,
+        `https://kind-trust-production.up.railway.app/api/orders/${orderId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -81,7 +81,7 @@ const Orders = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const response = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `https://kind-trust-production.up.railway.app/api/orders/${orderId}/status`,
         { status: newStatus },
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -117,7 +117,7 @@ const Orders = () => {
       try {
         const token = localStorage.getItem('adminToken');
         const response = await axios.delete(
-          `http://localhost:5000/api/orders/${orderId}`,
+          `https://kind-trust-production.up.railway.app/api/orders/${orderId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -140,7 +140,7 @@ const Orders = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const response = await axios.get(
-        `http://localhost:5000/api/orders/${orderId}`,
+        `https://kind-trust-production.up.railway.app/api/orders/${orderId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -191,7 +191,7 @@ const Orders = () => {
 
       const token = localStorage.getItem('adminToken');
       const response = await axios.put(
-        `http://localhost:5000/api/orders/${updatedOrder.order_id}`,
+        `https://kind-trust-production.up.railway.app/api/orders/${updatedOrder.order_id}`,
         orderData,
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -213,7 +213,7 @@ const Orders = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get('http://localhost:5000/api/products', {
+      const response = await axios.get('https://kind-trust-production.up.railway.app/api/products', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setProducts(response.data.data);
@@ -271,7 +271,7 @@ const Orders = () => {
       };
 
       const response = await axios.post(
-        'http://localhost:5000/api/orders/create',
+        'https://kind-trust-production.up.railway.app/api/orders/create',
         orderData,
         {
           headers: { 'Authorization': `Bearer ${token}` }

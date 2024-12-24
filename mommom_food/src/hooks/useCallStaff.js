@@ -15,7 +15,7 @@ export const useCallStaff = () => {
         throw new Error('Không tìm thấy thông tin bàn');
       }
 
-      const response = await axios.post('http://localhost:5000/api/notify/call-staff', {
+      const response = await axios.post('https://kind-trust-production.up.railway.app/api/notify/call-staff', {
         tableId: tableNumber
       });
 

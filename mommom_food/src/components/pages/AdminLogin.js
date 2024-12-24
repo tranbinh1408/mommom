@@ -18,7 +18,7 @@ const AdminLogin = () => {
     try {
       console.log('Attempting login with:', { username });
 
-      const response = await axios.post('http://localhost:5000/api/users/login', 
+      const response = await axios.post('https://kind-trust-production.up.railway.app/api/users/login', 
         { username, password },
         {
           headers: {
